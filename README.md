@@ -156,6 +156,23 @@ required this is provided by the following nodes:
 These blocks are designed to be configurable, and expose many more configuration
 options than `dccboxed-send` and `dccboxed-receive`.
 
+## Building
+
+To build locally, run the following:
+
+```
+npm run build
+```
+
+This will build both the frontend (using `webpack`) and backend (using `tsc`).
+The result will be placed into `dist` folder.
+
+## Contributions
+
+Pull requests are welcome. Please follow style of existing code. If making a
+large change, please also open an issue discuss the idea before developing it to
+save wasting effort.
+
 ## Other Info
 
 Copyright 2022, Smart DCC Limited, All rights reserved. Project is licensed
