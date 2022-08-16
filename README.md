@@ -1,6 +1,6 @@
 # DCC Boxed Node-RED Nodes
 
-[DCC Boxed][boxed] is a tool for (emulated) end-2-end testing within the UK
+[DCC&nbsp;Boxed][boxed] is a tool for (emulated) end-2-end testing within the UK
 smart metering network. This project provides a number of nodes that enable
 [Node-RED][nodered] to send and receive requests to a DCC Boxed instance.
 
@@ -10,27 +10,42 @@ The functionality exposed includes:
   * Send the [DUIS][duis] request to a DCC Boxed
   * Receive a [DUIS][duis] response (both synchronous and asynchronously)
 
+These three functions greatly reduce the complexity needed to interface with
+DCC&nbsp;Boxed as they hide the cryptographic operations and different request
+processing strategies. Thus, allowing the user to focus on the application
+layer, e.g. configuring devices or automating business processes.
+
 ## Usage
 
-Install the package into *Node-RED*'s palette using the [standard
-process][palette].
+Ensure you are using Node 16x or later. This is because some of the nodes rely
+on features in the `crypto` library of Node 16x.
+
+If you have not already, install [*Node-RED*][nodered]. The below assumes that
+*Node-RED* is installed globally and not running in a sandbox/docker. The nodes
+in the project are developed and tested against version 3.0.2 of *Node-RED*.
+
+Install `@smartdcc/dccboxed-nodered-nodes` package into *Node-RED*'s palette
+using the [standard process][palette].
 
 <img align="right" width="150" src="images/palette.png">
 
-This should make a number of nodes available under the `smartdcc` category (see image to right).
+Once installed, it should make available a number of purple nodes under the
+`smartdcc` category (see image to right).
 
-To fully use the DUIS signing/validation node it is required to install *Java*
-(tested against Java&nbsp;11). This means, that `java` should be available to
-the *Node-RED* application, i.e., it is recommended to run *Node-RED* directly
-on the host without a sandbox/docker environment. This simplifies the process of
-installing `java`. 
+**Note:** To use "*duis - sign & validate*", "*dccboxed-send*" or
+"*dccboxed-receive*" nodes it is required to install *Java* (developed and
+tested against Java&nbsp;11). This means, that `java` should be in the `PATH` of
+the *Node-RED* application. For this reason, it is recommended to run *Node-RED*
+directly on the host without a sandbox/docker environment. This simplifies the
+process of installing `java`. 
 
   * If running without `java` installed, an error will be generated when the
     sign/validate node is executed.
 
 ### Typical Usage
 
-The typical use case of the tool is build around 3 nodes:
+The typical use case of the nodes in this project is built around the following
+3 nodes:
 
   * `duis-template` - Provides template DUIS requests.
   * `dccboxed-send` - Send a DUIS request to a DCC Boxed and output any
@@ -106,9 +121,11 @@ requests to a DCC Boxed instance. This includes:
 
 ![dccboxed-receive typical layout](images/dccboxed-receive.png)
 
-The `dccboxed-receive` node provides a fully managed interface for receiving asynchronous DUIS responses from a DCC Boxed instance. This includes:
+The `dccboxed-receive` node provides a fully managed interface for receiving
+asynchronous DUIS responses from a DCC Boxed instance. This includes:
 
-  * Validating the received DUIS response (according to XSD and digital signature).
+  * Validating the received DUIS response (according to XSD and digital
+    signature).
   * Convert XML into JSON.
   * If response contains a GBCS payload, decode and decrypt it.
   * Attempt to reconcile response with request (i.e. stored `msg` object in
@@ -116,11 +133,10 @@ The `dccboxed-receive` node provides a fully managed interface for receiving asy
 
 The final step of of reconciliation is used so its possible to link asynchronous
 responses with the context of the message that triggered the request. For
-example, it could link an HTTP request input with its output as the `msg` is preserved:
-
+example, it could link a HTTP request input with its output as the `msg` is
+preserved:
 
 ![dccboxed-receive context](images/dccboxed-receive-context.png)
-
 
 ### Advanced
 
@@ -140,10 +156,10 @@ required this is provided by the following nodes:
 These blocks are designed to be configurable, and expose many more configuration
 options than `dccboxed-send` and `dccboxed-receive`.
 
-
 ## Other Info
 
-Copyright 2022, Smart DCC Limited, All rights reserved. Project is licensed under GPLv3.
+Copyright 2022, Smart DCC Limited, All rights reserved. Project is licensed
+under GPLv3.
 
 [duis]: https://smartenergycodecompany.co.uk/the-smart-energy-code-2/ "Smart Energy Code"
 [boxed]: https://www.smartdcc.co.uk/our-smart-network/network-products-services/dcc-boxed/ "DCC Boxed"
