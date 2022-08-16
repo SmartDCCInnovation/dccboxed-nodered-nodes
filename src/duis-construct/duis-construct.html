@@ -1,0 +1,45 @@
+<!--
+ Created on Tue Aug 16 2022
+
+ Copyright (c) 2022 Smart DCC Limited
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<script type="text/html" data-template-name="duis-construct">
+  <div class="form-row">
+    <label></label>
+    <input type="checkbox" id="node-input-minimal" style="display: inline-block; width: auto; vertical-align: top;" />
+    <label for="node-input-minimal" style="width: 70%;">Simplified Template</label>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-input"><i class="fa fa-ellipsis-h"></i> Input</label>
+    <input id="node-input-input" type="text" style="width: 70%">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-output"><i class="fa fa-ellipsis-h"></i> Output</label>
+    <input id="node-input-output" type="text" style="width: 70%">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="duis-construct">
+  <p>Converts JSON into DUIS (without signature)</p>
+</script>

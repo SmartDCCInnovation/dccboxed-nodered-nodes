@@ -1,0 +1,56 @@
+<!--
+ Created on Tue Aug 16 2022
+
+ Copyright (c) 2022 Smart DCC Limited
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<script type="text/html" data-template-name="dccboxed-config">
+  <div class="form-row">
+    <label for="node-config-input-host"
+      ><i class="fa fa-bookmark"></i> Host</label
+    >
+    <input type="text" id="node-config-input-host" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-port"
+      ><i class="fa fa-bookmark"></i> Port</label
+    >
+    <input type="text" id="node-config-input-port" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-responseEndpoint"
+      ><i class="fa fa-arrow-left"></i> Response</label
+    >
+    <input type="text" id="node-config-input-responseEndpoint" />
+  </div>
+  <div class="form-row form-tips">
+    The <i>Response</i> is a URI located on this <i>node-red</i> server which
+    will receive the DUIS responses from DCC Boxed. It must begin with
+    <code>/smartdcc/</code> and also DCC Boxed be configured to send responses
+    to it.
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-localKeyStore"><i class="fa fa-database"></i> Key Store</label>
+    <input type="text" id="node-input-localKeyStore" placeholder="/path/to/local/keystore.json"/>
+  </div>
+  <div class="form-row form-tips">
+    If a local keystore is not provided, an ephemeral temporary file will be used.
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>

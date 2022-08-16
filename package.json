@@ -1,0 +1,72 @@
+{
+  "name": "@smartdcc/dccboxed-nodered-nodes",
+  "version": "0.0.1",
+  "description": "Collection of nodes for NodeRED to facilitate interfacing with DCC Boxed",
+  "type": "commonjs",
+  "scripts": {
+    "build:back": "tsc",
+    "build:front": "webpack",
+    "prebuild": "del dist",
+    "build": "npm run build:back && npm run build:front",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes.git"
+  },
+  "author": {
+    "name": "Karim Kanso",
+    "email": "Karim.Kanso@smartdcc.co.uk"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes/issues"
+  },
+  "homepage": "https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes#readme",
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.3",
+    "@types/content-type": "^1.1.5",
+    "@types/jquery-mask-plugin": "^1.14.4",
+    "@types/node-red": "^1.2.1",
+    "css-loader": "^6.7.1",
+    "del-cli": "^5.0.0",
+    "html-inline-script-webpack-plugin": "^3.1.0",
+    "html-webpack-plugin": "^5.5.0",
+    "jquery-mask-plugin": "^1.14.16",
+    "prettier": "^2.7.1",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "@smartdcc/dccboxed-keystore": "file:../../../dccboxed-keystore/smartdcc-dccboxed-keystore-0.0.2.tgz",
+    "@smartdcc/duis-parser": "file:../../../duis-parser/smartdcc-duis-parser-0.0.3.tgz",
+    "@smartdcc/duis-sign-wrap": "file:../../../duis-sign-wrap/smartdcc-duis-sign-wrap-0.0.3.tgz",
+    "@smartdcc/duis-templates": "file:../duis-templates/smartdcc-duis-templates-0.0.1.tgz",
+    "@smartdcc/gbcs-parser": "file:../../../gbcs-parser/smartdcc-gbcs-parser-0.0.3.tgz",
+    "content-type": "^1.0.4",
+    "got": "^11.8.5"
+  },
+  "node-red": {
+    "nodes": {
+      "duis-template": "dist/duis-template.js",
+      "duis-construct": "dist/duis-construct.js",
+      "duis-sign": "dist/duis-sign.js",
+      "duis-parser": "dist/duis-parser.js",
+      "dccboxed-config": "dist/dccboxed-config.js",
+      "dccboxed-send": "dist/dccboxed-send.js",
+      "dccboxed-receive": "dist/dccboxed-receive.js",
+      "gbcs-parser": "dist/gbcs-parser.js",
+      "gbcs-signer": "dist/gbcs-signer.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
+}

@@ -1,0 +1,122 @@
+/*
+ * Created on Tue Aug 16 2022
+ *
+ * Copyright (c) 2022 Smart DCC Limited
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
+
+import type {
+  ConfigNode,
+  MessageStore,
+  Properties,
+} from './dccboxed-config.properties'
+
+import * as bodyParser from 'body-parser'
+import { validateDuis } from '@smartdcc/duis-sign-wrap'
+import { parseDuis } from '@smartdcc/duis-parser'
+import { EventEmitter } from 'node:events'
+import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
+
+export = function (RED: NodeAPI) {
+  function ConfigConstruct(this: ConfigNode, config: Properties & NodeDef) {
+    RED.nodes.createNode(this, config)
+    const node = this
+    node.config = config
+    node.events = new EventEmitter()
+
+    node.keyStore = new BoxedKeyStore(
+      config.host,
+      (config.localKeyStore?.length ?? 0) > 1 ? config.localKeyStore : undefined
+    )
+
+    const messageStore: MessageStore & {
+      dict: Record<string, NodeMessage>
+    } = {
+      dict: {},
+      store(reqid, msg) {
+        if (!reqid) {
+          return
+        }
+        const id = `${reqid.originatorId}:${reqid.targetId}:${reqid.counter}`
+        /* shallow copy, consider if deep is appropriate */
+        this.dict[id] = Object.assign({}, msg)
+      },
+      retrieve(reqid) {
+        const id = `${reqid?.originatorId}:${reqid?.targetId}:${reqid?.counter}`
+        if (reqid && id in this.dict) {
+          const msg = this.dict[id]
+          delete this.dict[id]
+          return msg
+        }
+        return undefined
+      },
+    }
+    this.messageStore = messageStore
+
+    RED.httpNode.post(
+      node.config.responseEndpoint,
+      bodyParser.text({ inflate: true, type: 'application/xml' }),
+      (req, res, next) => {
+        if (typeof req.body !== 'string') {
+          next()
+          return
+        }
+        validateDuis({ xml: req.body })
+          .then((validated) => parseDuis('simplified', validated))
+          .then((duis) => {
+            res.status(204)
+            res.send()
+            node.events.emit(
+              'duis',
+              duis,
+              this.messageStore.retrieve(duis.header.requestId)
+            )
+          })
+          .catch((e) => {
+            RED.log.debug(`request failed duis validation`)
+            node.events.emit('error', e)
+            res.status(400)
+            res.send()
+          })
+      }
+    )
+
+    node.on('close', function () {
+      node.events.removeAllListeners()
+      ;(<unknown[]>RED.httpNode._router.stack)?.forEach(function (
+        layer,
+        i,
+        layers
+      ) {
+        if (typeof layer === 'object' && layer !== null && 'route' in layer) {
+          const route = (
+            layer as {
+              route?: { path?: string; methods?: Record<string, boolean> }
+            }
+          ).route
+          if (
+            route?.path === node.config.responseEndpoint &&
+            route?.methods?.['post']
+          ) {
+            layers.splice(i, 1)
+          }
+        }
+      })
+    })
+  }
+  RED.nodes.registerType('dccboxed-config', ConfigConstruct)
+}
