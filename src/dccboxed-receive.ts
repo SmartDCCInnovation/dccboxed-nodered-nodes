@@ -18,7 +18,7 @@
  */
 
 import { isXMLData, SimplifiedDuisInput } from '@smartdcc/duis-parser'
-import { parseGbcsMessage } from '@smartdcc/gbcs-parser'
+import { minimizeMessage, parseGbcsMessage } from '@smartdcc/gbcs-parser'
 import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
 import { ConfigNode } from './dccboxed-config.properties'
 
@@ -81,7 +81,7 @@ export = function (RED: NodeAPI) {
                   ServerKeyStore(node.server, RED, eui, type, privateKey)
               )
                 .then((gbcs) => {
-                  go(_msg, gbcs)
+                  go(_msg, minimizeMessage(gbcs))
                   node.send([_msg, null, null, null])
                 })
                 .catch((e) => node.error(e))
@@ -103,7 +103,7 @@ export = function (RED: NodeAPI) {
                   ServerKeyStore(node.server, RED, eui, type, privateKey)
               )
                 .then((gbcs) => {
-                  go(_msg, gbcs)
+                  go(_msg, minimizeMessage(gbcs))
                   node.send([null, _msg, null, null])
                 })
                 .catch((e) => node.error(e))

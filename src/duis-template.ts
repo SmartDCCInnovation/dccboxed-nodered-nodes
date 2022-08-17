@@ -28,6 +28,8 @@ import type {
 import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 import { loadTemplates, search } from '@smartdcc/duis-templates'
 
+import structuredClone from '@ungap/structured-clone'
+
 export = function (RED: NodeAPI) {
   /* asynchronously load the templates on startup */
   const templates = loadTemplates({
@@ -118,7 +120,7 @@ export = function (RED: NodeAPI) {
         )
         .then((template) => {
           if (this.minimal) {
-            const sd = template.simplified
+            const sd = structuredClone(template.simplified)
             const originatorEUI = this.originatorEUI(msg)
             if (originatorEUI && sd.header.type === 'request') {
               sd.header.requestId.originatorId = originatorEUI
@@ -129,7 +131,7 @@ export = function (RED: NodeAPI) {
             }
             this.output(msg, sd)
           } else {
-            this.output(msg, template.normal)
+            this.output(msg, structuredClone(template.normal))
           }
           send(msg)
         })
