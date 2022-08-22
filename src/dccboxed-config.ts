@@ -37,11 +37,10 @@ import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
 export = function (RED: NodeAPI) {
   function ConfigConstruct(this: ConfigNode, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
-    const node = this
-    node.config = config
-    node.events = new EventEmitter()
+    this.config = config
+    this.events = new EventEmitter()
 
-    node.keyStore = new BoxedKeyStore(
+    this.keyStore = new BoxedKeyStore(
       config.host,
       (config.localKeyStore?.length ?? 0) > 1 ? config.localKeyStore : undefined
     )
@@ -71,7 +70,7 @@ export = function (RED: NodeAPI) {
     this.messageStore = messageStore
 
     RED.httpNode.post(
-      node.config.responseEndpoint,
+      this.config.responseEndpoint,
       bodyParser.text({ inflate: true, type: 'application/xml' }),
       (req, res, next) => {
         if (typeof req.body !== 'string') {
@@ -90,7 +89,7 @@ export = function (RED: NodeAPI) {
           .then((duis) => {
             res.status(204)
             res.send()
-            node.events.emit(
+            this.events.emit(
               'duis',
               duis,
               this.messageStore.retrieve(duis.header.requestId)
@@ -98,20 +97,16 @@ export = function (RED: NodeAPI) {
           })
           .catch((e) => {
             RED.log.debug(`request failed duis validation`)
-            node.events.emit('error', e)
+            this.events.emit('error', e)
             res.status(400)
             res.send()
           })
       }
     )
 
-    node.on('close', function () {
-      node.events.removeAllListeners()
-      ;(<unknown[]>RED.httpNode._router.stack)?.forEach(function (
-        layer,
-        i,
-        layers
-      ) {
+    this.on('close', () => {
+      this.events.removeAllListeners()
+      ;(<unknown[]>RED.httpNode._router.stack)?.forEach((layer, i, layers) => {
         if (typeof layer === 'object' && layer !== null && 'route' in layer) {
           const route = (
             layer as {
@@ -119,7 +114,7 @@ export = function (RED: NodeAPI) {
             }
           ).route
           if (
-            route?.path === node.config.responseEndpoint &&
+            route?.path === this.config.responseEndpoint &&
             route?.methods?.['post']
           ) {
             layers.splice(i, 1)

@@ -26,7 +26,7 @@ export interface Properties {
 
 import type { Node as RedNode } from 'node-red'
 
-export interface Node extends RedNode<{}> {
+export interface Node extends RedNode {
   output: (msg: object, signedXml: string) => void
   input: (msg: object) => unknown
   preserveCounter: boolean

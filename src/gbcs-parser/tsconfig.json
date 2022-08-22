@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["**/*.editor.ts"],
-  "exclude": [],
+  "exclude": []
 }

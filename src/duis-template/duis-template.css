@@ -17,19 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- .duis-template-search-result {
+.duis-template-search-result {
   border-bottom: 1px solid #dddddd;
   padding-bottom: 4px;
 }
 
-.duis-template-duis, .duis-template-gbcs {
+.duis-template-duis,
+.duis-template-gbcs {
   display: flex;
   align-items: baseline;
   column-gap: 1em;
-
 }
 
-.duis-template-gbcs, .duis-template-duis-variant {
+.duis-template-gbcs,
+.duis-template-duis-variant {
   font-size: smaller;
 }
 
@@ -53,18 +54,19 @@ div.duis-template-card {
   padding: 0.5em;
 }
 
-div[id^=duis-template-card-serviceRequestName-],div[id^=duis-template-card-gbcsName-] {
+div[id^='duis-template-card-serviceRequestName-'],
+div[id^='duis-template-card-gbcsName-'] {
   margin-left: 1em;
   font-size: smaller;
 }
 
-div[id^=duis-template-card-] {
+div[id^='duis-template-card-'] {
   font-weight: bolder;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-div[id^=duis-template-card-]>span {
+div[id^='duis-template-card-'] > span {
   font-weight: lighter;
 }

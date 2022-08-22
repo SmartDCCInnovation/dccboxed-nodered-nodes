@@ -37,7 +37,7 @@ export interface Properties {
   deafultName?: string
 }
 
-export interface Node extends RedNode<{}> {
+export interface Node extends RedNode {
   template: string
   minimal: boolean
   output: (msg: object, value: unknown) => void

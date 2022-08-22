@@ -42,7 +42,7 @@ export interface LocalKeyEntry {
   key: KeyObject
 }
 
-export interface GbcsNode extends Node<{}> {
+export interface GbcsNode extends Node {
   server?: ConfigNode
   keyStore: KeyStore
   localKeys: LocalKeyEntry[]

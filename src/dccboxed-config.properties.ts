@@ -48,7 +48,7 @@ interface DuisEmitter extends EventEmitter {
   on(eventName: 'error', listener: (e: Error) => void): this
 }
 
-export interface ConfigNode extends Node<{}> {
+export interface ConfigNode extends Node {
   config: Properties
   events: DuisEmitter
   keyStore: BoxedKeyStore

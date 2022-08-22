@@ -34,8 +34,7 @@ export = function (RED: NodeAPI) {
         RED.util.setMessageProperty(msg, output, value, true)
       }
     }
-    var node = this
-    node.on('input', (msg, send, done) => {
+    this.on('input', (msg, send, done) => {
       const input = this.input(msg)
       if (typeof input === 'string' || Buffer.isBuffer(input)) {
         if (config.minimal) {

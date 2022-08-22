@@ -20,7 +20,7 @@
 import type { NodeDef, NodeAPI } from 'node-red'
 import { ConfigNode } from './dccboxed-config.properties'
 
-import type { SendNode, Properties } from './dccboxed-send.properties'
+import type { Node, Properties } from './dccboxed-send.properties'
 
 import got from 'got'
 import {
@@ -44,10 +44,9 @@ import {
 } from '@smartdcc/duis-parser/dist/duis'
 
 export = function (RED: NodeAPI) {
-  function DCCBoxedSend(this: SendNode, config: Properties & NodeDef) {
+  function DCCBoxedSend(this: Node, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
-    const node = this
-    node.server = RED.nodes.getNode(config.server) as ConfigNode
+    this.server = RED.nodes.getNode(config.server) as ConfigNode
     {
       const input = (config.input ?? '').trim() || 'payload.request'
       this.input = (msg) => RED.util.getMessageProperty(msg, input)
@@ -58,10 +57,10 @@ export = function (RED: NodeAPI) {
         RED.util.setMessageProperty(msg, output, value, true)
       }
     }
-    node.on('input', (msg, send, done) => {
+    this.on('input', (msg, send, done) => {
       const req = this.input(msg)
       if (!isSimplifiedDuisInput(req)) {
-        node.status({
+        this.status({
           fill: 'yellow',
           shape: 'dot',
           text: 'bad input',
@@ -71,7 +70,7 @@ export = function (RED: NodeAPI) {
       }
 
       if (req.header.type !== 'request') {
-        node.status({
+        this.status({
           fill: 'yellow',
           shape: 'dot',
           text: 'bad input',
@@ -83,8 +82,8 @@ export = function (RED: NodeAPI) {
         ? req.header.commandVariant
         : lookupCV(req.header.commandVariant)
 
-      if (cv.number === 3 || cv.number == 7) {
-        node.status({
+      if (cv.number === 3 || cv.number === 7) {
+        this.status({
           fill: 'yellow',
           shape: 'dot',
           text: 'unsupported cv',
@@ -110,7 +109,7 @@ export = function (RED: NodeAPI) {
           | 'Transform Service',
         preserveCounter: boolean
       ): Promise<SimplifiedDuisOutputResponse> => {
-        node.status({
+        this.status({
           fill: 'blue',
           shape: 'dot',
           text: `${endpoint}: signing duis`,
@@ -120,13 +119,13 @@ export = function (RED: NodeAPI) {
         console.log(preSignedXml)
         const signedXml = await signDuis({ xml: preSignedXml, preserveCounter })
 
-        node.status({
+        this.status({
           fill: 'blue',
           shape: 'dot',
           text: `${endpoint}: requesting`,
         })
         const response = await got(
-          `http://${node.server.config.host}:${node.server.config.port}${endpoints[endpoint]}`,
+          `http://${this.server.config.host}:${this.server.config.port}${endpoints[endpoint]}`,
           {
             timeout: { request: 3000 },
             headers: { 'Content-Type': 'application/xml' },
@@ -146,7 +145,7 @@ export = function (RED: NodeAPI) {
             `incorrect content-type header received, expected application/xml, received: ${response.headers['content-type']}`
           )
         }
-        node.status({
+        this.status({
           fill: 'blue',
           shape: 'dot',
           text: `${endpoint}: validating`,
@@ -160,7 +159,7 @@ export = function (RED: NodeAPI) {
           throw new Error('invalid simplified duis')
         }
 
-        node.status({
+        this.status({
           fill: res.header.responseCode.startsWith('I') ? 'green' : 'red',
           shape: 'dot',
           text: `${endpoint}: result code: ${res.header.responseCode}`,
@@ -225,7 +224,7 @@ export = function (RED: NodeAPI) {
           }
         })
         .catch((e) => {
-          node.status({
+          this.status({
             fill: 'red',
             shape: 'dot',
             text: 'sending failed',
@@ -234,7 +233,7 @@ export = function (RED: NodeAPI) {
         })
         .finally(() => {
           /* todo: use return timerid to avoid accidental overwrite */
-          setTimeout(() => node.status({}), 5000)
+          setTimeout(() => this.status({}), 5000)
         })
     })
   }

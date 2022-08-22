@@ -63,7 +63,7 @@ export = function (RED: NodeAPI) {
       switch (config.originatorEUI_type) {
         case 'default':
           return
-        case 'msg':
+        case 'msg': {
           const x = RED.util.getMessageProperty(
             msg,
             config.originatorEUI ?? 'payload.originatorEUI'
@@ -76,6 +76,7 @@ export = function (RED: NodeAPI) {
             )
           }
           break
+        }
         case 'eui':
           eui = config.originatorEUI as string
       }
@@ -90,7 +91,7 @@ export = function (RED: NodeAPI) {
       switch (config.targetEUI_type) {
         case 'default':
           return
-        case 'msg':
+        case 'msg': {
           const x = RED.util.getMessageProperty(
             msg,
             config.targetEUI ?? 'payload.targetEUI'
@@ -103,6 +104,7 @@ export = function (RED: NodeAPI) {
             )
           }
           break
+        }
         case 'eui':
           eui = config.targetEUI as string
       }
@@ -145,7 +147,7 @@ export = function (RED: NodeAPI) {
     RED.auth.needsPermission('smartdcc.write'),
     function (req, res) {
       const node = RED.nodes.getNode(req.params.id)
-      if (node != null) {
+      if (node !== null) {
         try {
           if (req.body && req.body.__user_inject_props__) {
             node.receive(req.body)
@@ -153,9 +155,9 @@ export = function (RED: NodeAPI) {
             node.receive()
           }
           res.sendStatus(200)
-        } catch (err: any) {
+        } catch (err) {
           res.sendStatus(500)
-          node.error(RED._('inject.failed', { error: err.toString() }))
+          node.error(`failed to inject template ${err}`)
         }
       } else {
         res.sendStatus(404)

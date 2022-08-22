@@ -25,9 +25,9 @@ export interface Properties {
   output: string
 }
 
-import type { Node } from 'node-red'
+import type { Node as RedNode } from 'node-red'
 
-export interface SendNode extends Node<{}> {
+export interface Node extends RedNode {
   server: ConfigNode
   input: (msg: object) => unknown
   output: (msg: object, value: unknown) => void

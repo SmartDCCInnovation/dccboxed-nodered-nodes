@@ -22,7 +22,6 @@ import {
   constructDuis,
   isSimplifiedDuisInput,
   isXMLData,
-  SimplifiedDuisInput,
   XMLData,
 } from '@smartdcc/duis-parser'
 
@@ -41,8 +40,7 @@ export = function (RED: NodeAPI) {
         RED.util.setMessageProperty(msg, output, value, true)
       }
     }
-    var node = this
-    node.on('input', (msg, send, done) => {
+    this.on('input', (msg, send, done) => {
       const input = this.input(msg)
       if (config.minimal) {
         if (isSimplifiedDuisInput(input)) {

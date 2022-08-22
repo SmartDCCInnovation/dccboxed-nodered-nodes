@@ -9,7 +9,9 @@
     "prebuild": "del dist",
     "build": "npm run build:back && npm run build:front",
     "prepack": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/",
+    "prettier-check": "prettier -c  \"src/**/*.{css,html,ts,json,md,yaml,yml}\""
   },
   "repository": {
     "type": "git",
@@ -33,8 +35,12 @@
     "@types/jquery-mask-plugin": "^1.14.4",
     "@types/node-red": "^1.2.1",
     "@types/ungap__structured-clone": "^0.3.0",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
     "css-loader": "^6.7.1",
     "del-cli": "^5.0.0",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^8.5.0",
     "html-inline-script-webpack-plugin": "^3.1.0",
     "html-webpack-plugin": "^5.5.0",
     "jquery-mask-plugin": "^1.14.16",

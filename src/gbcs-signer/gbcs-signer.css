@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- .gbcs-signer-row {
+.gbcs-signer-row {
   display: flex;
   align-items: baseline;
   column-gap: 1em;

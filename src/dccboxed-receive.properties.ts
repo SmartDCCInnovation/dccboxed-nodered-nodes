@@ -35,7 +35,7 @@ export interface Properties {
 
 import type { Node, NodeMessage } from 'node-red'
 
-export interface ReceiveNode extends Node<{}> {
+export interface ReceiveNode extends Node {
   server: ConfigNode
   output: (msg: object, val: unknown) => void
   gbcsOutput?: (msg: object, val: unknown) => void

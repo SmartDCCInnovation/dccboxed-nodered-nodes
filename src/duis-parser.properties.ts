@@ -25,7 +25,7 @@ export interface Properties {
 
 import type { Node as RedNode } from 'node-red'
 
-export interface Node extends RedNode<{}> {
+export interface Node extends RedNode {
   input: (msg: object) => unknown
   output: (msg: object, value: unknown) => void
 }
