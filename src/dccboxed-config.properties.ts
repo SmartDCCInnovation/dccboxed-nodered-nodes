@@ -24,10 +24,13 @@ export interface Properties {
   localKeyStore?: string
 }
 
-import type { RequestId, SimplifiedDuisOutput } from '@smartdcc/duis-parser'
+import type {
+  RequestId,
+  SimplifiedDuisOutputResponse,
+} from '@smartdcc/duis-parser'
+import { EventEmitter } from 'node:events'
 import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
 import type { Node, NodeMessage } from 'node-red'
-import type { EventEmitter } from 'node:events'
 
 export interface MessageStore {
   store(reqid: RequestId | undefined, msg: NodeMessage): void
@@ -38,7 +41,7 @@ interface DuisEmitter extends EventEmitter {
   on(
     eventName: 'duis',
     listener: (
-      message: SimplifiedDuisOutput,
+      message: SimplifiedDuisOutputResponse,
       msg: NodeMessage | undefined
     ) => void
   ): this

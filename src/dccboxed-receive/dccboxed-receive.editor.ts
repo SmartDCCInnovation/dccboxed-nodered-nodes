@@ -32,20 +32,29 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
     output: { value: 'payload.response', required: true },
     decodeGbcs: { value: true, required: true },
     gbcsOutput: { value: 'payload.gbcs', required: true },
+    outputResponses: { value: true, required: true },
+    outputDeviceAlerts: { value: true, required: true },
+    outputDCCAlerts: { value: true, required: true },
+    outputResponsesFilter: { value: undefined, required: false },
+    outputDeviceAlertsFilter: { value: undefined, required: false },
+    outputDCCAlertsFilter: { value: undefined, required: false },
+    outputs: { value: 4 },
   },
   inputs: 0,
   outputs: 4,
   outputLabels(idx: number) {
-    switch (idx) {
-      case 0:
-        return 'I0 (response)'
-      case 1:
-        return 'I0 (device alert)'
-      case 2:
-        return 'I0 (dcc alert)'
-      default:
-        return 'Error'
+    const labels: string[] = []
+    if (this.outputResponses) {
+      labels.push('I0 (response)')
     }
+    if (this.outputDeviceAlerts) {
+      labels.push('I0 (device alert)')
+    }
+    if (this.outputDCCAlerts) {
+      labels.push('I0 (dcc alert)')
+    }
+    labels.push('Error')
+    return labels[idx]
   },
   icon: 'arrow-in.svg',
   label: function () {
@@ -62,6 +71,25 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
       } else {
         $('#dccboxed-receive-gbcsOutput').hide()
       }
+    })
+    const setOutputs = () => {
+      $('input#node-input-outputs').val(
+        JSON.stringify(
+          1 + $('input[type=checkbox][id^=node-input-output]:checked').length
+        )
+      )
+    }
+    $('input[type=checkbox][id^=node-input-output]').on('change', setOutputs)
+    $('input[type=checkbox][id^=node-input-output]').on('change', function () {
+      const input = $(this)
+      if (input.is(':checked')) {
+        $(`div.${input.attr('id')}`).show()
+      } else {
+        $(`div.${input.attr('id')}`).hide()
+      }
+    })
+    $('input[type=text][id^=node-input-output][id$=Filter]').typedInput({
+      types: ['re'],
     })
   },
 })

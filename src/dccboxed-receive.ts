@@ -17,7 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { isXMLData, SimplifiedDuisInput } from '@smartdcc/duis-parser'
+import {
+  isSimplifiedDuisResponseBody_DCCAlertMessage,
+  isSimplifiedDuisResponseBody_DeviceAlertMessage,
+  isSimplifiedDuisResponseBody_ResponseMessage,
+  isSimplifiedDuisResponseBody_ResponseMessage_X,
+  SimplifiedDuisOutputResponse,
+} from '@smartdcc/duis-parser'
 import { minimizeMessage, parseGbcsMessage } from '@smartdcc/gbcs-parser'
 import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
 import { ConfigNode } from './dccboxed-config.properties'
@@ -45,88 +51,170 @@ export = function (RED: NodeAPI) {
       }
     }
 
+    this.outputResponsesFilter = RegExp(
+      config.outputResponses ? config.outputResponsesFilter ?? '.*' : '^$'
+    )
+    this.outputDeviceAlertsFilter = RegExp(
+      config.outputDeviceAlerts ? config.outputDeviceAlertsFilter ?? '.*' : '^$'
+    )
+    this.outputDCCAlertsFilter = RegExp(
+      config.outputDCCAlerts ? config.outputDCCAlertsFilter ?? '.*' : '^$'
+    )
+
+    {
+      const { outputResponses, outputDeviceAlerts, outputDCCAlerts } = config
+      this.sendOutput = function (o) {
+        const msgs: (NodeMessage | null)[] = []
+        if (outputResponses) {
+          if (o.type === 'response') {
+            msgs.push(o.payload)
+          } else {
+            msgs.push(null)
+          }
+        }
+        if (outputDeviceAlerts) {
+          if (o.type === 'devicealert') {
+            msgs.push(o.payload)
+          } else {
+            msgs.push(null)
+          }
+        }
+        if (outputDCCAlerts) {
+          if (o.type === 'dccalert') {
+            msgs.push(o.payload)
+          } else {
+            msgs.push(null)
+          }
+        }
+        if (o.type === 'error') {
+          msgs.push(o.payload)
+        } else {
+          msgs.push(null)
+        }
+        this.send(msgs)
+      }
+    }
+
     let tid: NodeJS.Timeout
 
     function NewDuis(
-      sd: SimplifiedDuisInput,
+      sd: SimplifiedDuisOutputResponse,
       msg: NodeMessage | undefined
     ): void {
-      if (sd.header.type === 'response') {
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `result code: ${sd.header.responseCode}`,
-        })
-        clearTimeout(tid)
-        tid = setTimeout(() => {
-          node.status({})
-        }, 5000)
-        msg = msg ?? { _msgid: '' }
-        node.output(msg, sd)
-        if (sd.header.responseCode !== 'I0') {
-          node.send([null, null, null, msg])
-        } else {
-          if ('ResponseMessage' in sd.body) {
-            if (
-              node.gbcsOutput &&
-              isXMLData(sd.body.ResponseMessage) &&
-              'GBCSPayload' in sd.body.ResponseMessage &&
-              typeof sd.body.ResponseMessage.GBCSPayload === 'string'
-            ) {
-              const go = node.gbcsOutput
-              const _msg = msg
-              parseGbcsMessage(
-                sd.body.ResponseMessage.GBCSPayload,
-                (eui, type, privateKey) =>
-                  ServerKeyStore(node.server, RED, eui, type, privateKey)
-              )
-                .then((gbcs) => {
-                  go(_msg, minimizeMessage(gbcs))
-                  node.send([_msg, null, null, null])
-                })
-                .catch((e) => node.error(e))
-            } else {
-              node.send([msg, null, null, null])
-            }
-          } else if ('DeviceAlertMessage' in sd.body) {
-            if (
-              node.gbcsOutput &&
-              isXMLData(sd.body.DeviceAlertMessage) &&
-              'GBCSPayload' in sd.body.DeviceAlertMessage &&
-              typeof sd.body.DeviceAlertMessage.GBCSPayload === 'string'
-            ) {
-              const go = node.gbcsOutput
-              const _msg = msg
-              parseGbcsMessage(
-                sd.body.DeviceAlertMessage.GBCSPayload,
-                (eui, type, privateKey) =>
-                  ServerKeyStore(node.server, RED, eui, type, privateKey)
-              )
-                .then((gbcs) => {
-                  go(_msg, minimizeMessage(gbcs))
-                  node.send([null, _msg, null, null])
-                })
-                .catch((e) => node.error(e))
-              node.status({
-                fill: 'green',
-                shape: 'dot',
-                text: `device alert code: ${sd.body.DeviceAlertMessage.AlertCode}`,
+      if (
+        isSimplifiedDuisResponseBody_ResponseMessage(sd.body) &&
+        sd.body.ResponseMessage.ServiceReferenceVariant.match(
+          node.outputResponsesFilter
+        ) === null
+      ) {
+        return node.sendOutput({ type: 'none' })
+      }
+      if (
+        isSimplifiedDuisResponseBody_DeviceAlertMessage(sd.body) &&
+        sd.body.DeviceAlertMessage.AlertCode.match(
+          node.outputDeviceAlertsFilter
+        ) === null
+      ) {
+        return node.sendOutput({ type: 'none' })
+      }
+      if (
+        isSimplifiedDuisResponseBody_DCCAlertMessage(sd.body) &&
+        sd.body.DCCAlertMessage.DCCAlertCode.match(
+          node.outputDCCAlertsFilter
+        ) === null
+      ) {
+        return node.sendOutput({ type: 'none' })
+      }
+
+      node.status({
+        fill: 'green',
+        shape: 'dot',
+        text: `result code: ${sd.header.responseCode}`,
+      })
+      clearTimeout(tid)
+      tid = setTimeout(() => {
+        node.status({})
+      }, 5000)
+      msg = msg ?? { _msgid: '' }
+      node.output(msg, sd)
+      if (sd.header.responseCode !== 'I0') {
+        node.sendOutput({ type: 'error', payload: msg })
+      } else {
+        if (isSimplifiedDuisResponseBody_ResponseMessage(sd.body)) {
+          if (
+            node.gbcsOutput &&
+            isSimplifiedDuisResponseBody_ResponseMessage_X(
+              'GBCSPayload',
+              sd.body
+            )
+          ) {
+            const go = node.gbcsOutput
+            const _msg = msg
+            parseGbcsMessage(
+              sd.body.ResponseMessage.GBCSPayload,
+              (eui, type, privateKey) =>
+                ServerKeyStore(node.server, RED, eui, type, privateKey)
+            )
+              .then((gbcs) => {
+                go(_msg, minimizeMessage(gbcs))
+                node.sendOutput({ type: 'response', payload: _msg })
               })
-            } else {
-              node.send([null, msg, null, null])
-            }
-          } else if ('DCCAlertMessage' in sd.body) {
-            if (node.gbcsOutput && isXMLData(sd.body.DCCAlertMessage)) {
-              node.status({
-                fill: 'green',
-                shape: 'dot',
-                text: `dcc alert code: ${sd.body.DCCAlertMessage.DCCAlertCode}`,
+              .catch((e) => node.error(e))
+          } else if (
+            node.gbcsOutput &&
+            isSimplifiedDuisResponseBody_ResponseMessage_X(
+              'FutureDatedDeviceAlertMessage',
+              sd.body
+            )
+          ) {
+            const go = node.gbcsOutput
+            const _msg = msg
+            parseGbcsMessage(
+              sd.body.ResponseMessage.FutureDatedDeviceAlertMessage.GBCSPayload,
+              (eui, type, privateKey) =>
+                ServerKeyStore(node.server, RED, eui, type, privateKey)
+            )
+              .then((gbcs) => {
+                go(_msg, minimizeMessage(gbcs))
+                node.sendOutput({ type: 'response', payload: _msg })
               })
-            }
-            node.send([null, null, msg, null])
+              .catch((e) => node.error(e))
           } else {
-            node.warn('unknown message received: ' + JSON.stringify(sd))
+            node.sendOutput({ type: 'response', payload: msg })
           }
+        } else if (isSimplifiedDuisResponseBody_DeviceAlertMessage(sd.body)) {
+          if (node.gbcsOutput) {
+            const go = node.gbcsOutput
+            const _msg = msg
+            parseGbcsMessage(
+              sd.body.DeviceAlertMessage.GBCSPayload,
+              (eui, type, privateKey) =>
+                ServerKeyStore(node.server, RED, eui, type, privateKey)
+            )
+              .then((gbcs) => {
+                go(_msg, minimizeMessage(gbcs))
+                node.sendOutput({ type: 'devicealert', payload: _msg })
+              })
+              .catch((e) => node.error(e))
+            node.status({
+              fill: 'green',
+              shape: 'dot',
+              text: `device alert code: ${sd.body.DeviceAlertMessage.AlertCode}`,
+            })
+          } else {
+            node.sendOutput({ type: 'devicealert', payload: msg })
+          }
+        } else if (isSimplifiedDuisResponseBody_DCCAlertMessage(sd.body)) {
+          if (node.gbcsOutput) {
+            node.status({
+              fill: 'green',
+              shape: 'dot',
+              text: `dcc alert code: ${sd.body.DCCAlertMessage.DCCAlertCode}`,
+            })
+          }
+          node.sendOutput({ type: 'dccalert', payload: msg })
+        } else {
+          node.warn('unknown message received: ' + JSON.stringify(sd))
         }
       }
     }

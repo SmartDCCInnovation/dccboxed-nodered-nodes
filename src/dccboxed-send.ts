@@ -26,13 +26,9 @@ import got from 'got'
 import {
   constructDuis,
   isSimplifiedDuisInput,
-  isSimplifiedDuisOutput,
-  isXMLData,
   lookupCV,
   parseDuis,
-  ResponseHeader,
   SimplifiedDuisInput,
-  SimplifiedDuisOutput,
 } from '@smartdcc/duis-parser'
 import { isCommandVariant } from '@smartdcc/duis-parser/dist/cv'
 import { signDuis, validateDuis } from '@smartdcc/duis-sign-wrap'
@@ -41,6 +37,11 @@ import { parse as contentType } from 'content-type'
 import { inspect } from 'node:util'
 import { signGroupingHeader } from '@smartdcc/gbcs-parser'
 import { ServerKeyStore } from './gbcs-node.common'
+import {
+  isSimplifiedDuisOutputResponse,
+  isSimplifiedDuisResponseBody_ResponseMessage_X,
+  SimplifiedDuisOutputResponse,
+} from '@smartdcc/duis-parser/dist/duis'
 
 export = function (RED: NodeAPI) {
   function DCCBoxedSend(this: SendNode, config: Properties & NodeDef) {
@@ -108,9 +109,7 @@ export = function (RED: NodeAPI) {
           | 'Send Command Service'
           | 'Transform Service',
         preserveCounter: boolean
-      ): Promise<
-        Omit<SimplifiedDuisOutput, 'header'> & { header: ResponseHeader }
-      > => {
+      ): Promise<SimplifiedDuisOutputResponse> => {
         node.status({
           fill: 'blue',
           shape: 'dot',
@@ -152,10 +151,11 @@ export = function (RED: NodeAPI) {
           shape: 'dot',
           text: `${endpoint}: validating`,
         })
+        console.log(response.body)
         const validatedDuis = await validateDuis({ xml: response.body })
 
         const res = parseDuis('simplified', validatedDuis)
-        if (!isSimplifiedDuisOutput(res) || res.header.type !== 'response') {
+        if (!isSimplifiedDuisOutputResponse(res)) {
           console.log(inspect(response, { depth: 10, colors: true }))
           throw new Error('invalid simplified duis')
         }
@@ -165,9 +165,7 @@ export = function (RED: NodeAPI) {
           shape: 'dot',
           text: `${endpoint}: result code: ${res.header.responseCode}`,
         })
-        return res as Omit<SimplifiedDuisOutput, 'header'> & {
-          header: ResponseHeader
-        }
+        return res
       }
 
       asyncWorkerSend(req, cv.webService, false)
@@ -177,16 +175,12 @@ export = function (RED: NodeAPI) {
             duis.header.responseCode === 'I0'
           ) {
             if (
-              isXMLData(duis.body.ResponseMessage) &&
-              isXMLData(duis.body.ResponseMessage.PreCommand) &&
-              typeof duis.body.ResponseMessage.PreCommand.GBCSPayload ===
-                'string' &&
-              typeof duis.header.requestId?.originatorId === 'string' &&
-              typeof duis.body.ResponseMessage.ServiceReference === 'string' &&
-              typeof duis.body.ResponseMessage.ServiceReferenceVariant ===
-                'string'
+              duis.header.requestId &&
+              isSimplifiedDuisResponseBody_ResponseMessage_X(
+                'PreCommand',
+                duis.body
+              )
             ) {
-              console.log(duis.body.ResponseMessage.PreCommand.GBCSPayload)
               const signedGBCS = await signGroupingHeader(
                 duis.header.requestId?.originatorId,
                 duis.body.ResponseMessage.PreCommand.GBCSPayload,

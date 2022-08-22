@@ -27,7 +27,10 @@ import type {
 
 import * as bodyParser from 'body-parser'
 import { validateDuis } from '@smartdcc/duis-sign-wrap'
-import { parseDuis } from '@smartdcc/duis-parser'
+import {
+  isSimplifiedDuisOutputResponse,
+  parseDuis,
+} from '@smartdcc/duis-parser'
 import { EventEmitter } from 'node:events'
 import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
 
@@ -75,8 +78,15 @@ export = function (RED: NodeAPI) {
           next()
           return
         }
+        console.log(req.body)
         validateDuis({ xml: req.body })
           .then((validated) => parseDuis('simplified', validated))
+          .then((duis) => {
+            if (isSimplifiedDuisOutputResponse(duis)) {
+              return duis
+            }
+            throw new Error('expected duis response')
+          })
           .then((duis) => {
             res.status(204)
             res.send()

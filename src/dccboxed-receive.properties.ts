@@ -24,12 +24,30 @@ export interface Properties {
   output: string
   decodeGbcs: boolean
   gbcsOutput: string
+  outputResponses: boolean
+  outputDeviceAlerts: boolean
+  outputDCCAlerts: boolean
+  outputResponsesFilter?: string
+  outputDeviceAlertsFilter?: string
+  outputDCCAlertsFilter?: string
+  outputs: number
 }
 
-import type { Node } from 'node-red'
+import type { Node, NodeMessage } from 'node-red'
 
 export interface ReceiveNode extends Node<{}> {
   server: ConfigNode
   output: (msg: object, val: unknown) => void
   gbcsOutput?: (msg: object, val: unknown) => void
+  outputResponsesFilter: RegExp
+  outputDeviceAlertsFilter: RegExp
+  outputDCCAlertsFilter: RegExp
+  sendOutput(
+    opt:
+      | {
+          type: 'response' | 'devicealert' | 'dccalert' | 'error'
+          payload: NodeMessage
+        }
+      | { type: 'none' }
+  ): void
 }
