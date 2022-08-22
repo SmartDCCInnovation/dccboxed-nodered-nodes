@@ -29,19 +29,17 @@ import {
   lookupCV,
   parseDuis,
   SimplifiedDuisInput,
+  isSimplifiedDuisOutputResponse,
+  isSimplifiedDuisResponseBody_ResponseMessage_X,
+  SimplifiedDuisOutputResponse,
+  isCommandVariant,
 } from '@smartdcc/duis-parser'
-import { isCommandVariant } from '@smartdcc/duis-parser/dist/cv'
 import { signDuis, validateDuis } from '@smartdcc/duis-sign-wrap'
 import { parse as contentType } from 'content-type'
 
 import { inspect } from 'node:util'
 import { signGroupingHeader } from '@smartdcc/gbcs-parser'
 import { ServerKeyStore } from './gbcs-node.common'
-import {
-  isSimplifiedDuisOutputResponse,
-  isSimplifiedDuisResponseBody_ResponseMessage_X,
-  SimplifiedDuisOutputResponse,
-} from '@smartdcc/duis-parser/dist/duis'
 
 export = function (RED: NodeAPI) {
   function DCCBoxedSend(this: Node, config: Properties & NodeDef) {
