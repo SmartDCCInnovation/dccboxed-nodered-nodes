@@ -1,5 +1,9 @@
 # DCC Boxed Node-RED Nodes
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Tests](https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes/actions/workflows/node.yml/badge.svg?branch=main&event=push)](https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes/actions/workflows/node.yml)
+[![GitHub version](https://badge.fury.io/gh/SmartDCCInnovation%2Fdccboxed-nodered-nodes.svg)](https://badge.fury.io/gh/SmartDCCInnovation%2Fdccboxed-nodered-nodes)
+
 [DCC&nbsp;Boxed][boxed] is a tool for (emulated) end-2-end testing within the UK
 smart metering network. This project provides a number of nodes that enable
 [Node-RED][nodered] to send and receive requests to a DCC Boxed instance.
@@ -167,11 +171,23 @@ npm run build
 This will build both the frontend (using `webpack`) and backend (using `tsc`).
 The result will be placed into `dist` folder.
 
-## Contributions
+## Contributing
 
-Pull requests are welcome. Please follow style of existing code. If making a
-large change, please also open an issue discuss the idea before developing it to
-save wasting effort.
+Contributions are welcome!
+
+When submitting a pull request, please ensure:
+
+  1. Each PR is concise and provides only one feature/bug fix.
+  2. Currently project does not have a test suit, however it is expected the
+     change is manually tested.
+  3. Bugfixes are reference the GitHub issue.
+  4. If appropriate, update documentation.
+  5. Before committing, run `npm run lint` and `npm run prettier-check`.
+
+If you are planning a new non-trivial feature, please first raise a GitHub issue
+to discuss it to before investing your time to avoid disappointment.
+
+Any contributions will be expected to be licensable under GPLv3.
 
 ## Other Info
 
