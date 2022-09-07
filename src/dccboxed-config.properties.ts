@@ -51,6 +51,6 @@ interface DuisEmitter extends EventEmitter {
 export interface ConfigNode extends Node {
   config: Properties
   events: DuisEmitter
-  keyStore: BoxedKeyStore
+  keyStore?: BoxedKeyStore
   messageStore: MessageStore
 }

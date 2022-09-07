@@ -51,11 +51,11 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "@smartdcc/dccboxed-keystore": "file:../../../dccboxed-keystore/smartdcc-dccboxed-keystore-0.0.2.tgz",
-    "@smartdcc/duis-parser": "file:../../../duis-parser/smartdcc-duis-parser-0.0.3.tgz",
-    "@smartdcc/duis-sign-wrap": "file:../../../duis-sign-wrap/smartdcc-duis-sign-wrap-0.0.4.tgz",
-    "@smartdcc/duis-templates": "file:../duis-templates/smartdcc-duis-templates-0.0.1.tgz",
-    "@smartdcc/gbcs-parser": "file:../../../gbcs-parser/smartdcc-gbcs-parser-0.0.3.tgz",
+    "@smartdcc/dccboxed-keystore": "^0.0.3",
+    "@smartdcc/duis-parser": "^0.1.1",
+    "@smartdcc/duis-sign-wrap": "^0.0.5",
+    "@smartdcc/duis-templates": "^0.0.3",
+    "@smartdcc/gbcs-parser": "^0.0.4",
     "@ungap/structured-clone": "^1.0.1",
     "content-type": "^1.0.4",
     "got": "^11.8.5"

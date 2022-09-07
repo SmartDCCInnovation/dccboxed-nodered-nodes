@@ -40,10 +40,16 @@ export = function (RED: NodeAPI) {
     this.config = config
     this.events = new EventEmitter()
 
-    this.keyStore = new BoxedKeyStore(
+    BoxedKeyStore.new(
       config.host,
       (config.localKeyStore?.length ?? 0) > 1 ? config.localKeyStore : undefined
     )
+      .then((ks) => {
+        this.keyStore = ks
+      })
+      .catch((e) => {
+        RED.log.error(`failed to load dcc boxed key store: ${e}`)
+      })
 
     const messageStore: MessageStore & {
       dict: Record<string, NodeMessage>

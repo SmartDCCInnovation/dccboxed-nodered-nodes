@@ -43,7 +43,7 @@ export async function ServerKeyStore(
   privateKey?: boolean
 ): Promise<KeyObject> {
   if (privateKey) {
-    let results = await server.keyStore.query({
+    let results = await server.keyStore?.query({
       eui,
       keyUsage:
         type === 'DS' ? KeyUsage.digitalSignature : KeyUsage.keyAgreement,
@@ -58,7 +58,7 @@ export async function ServerKeyStore(
       )
     }
   } else {
-    let results = await server.keyStore.query({
+    let results = await server.keyStore?.query({
       eui,
       keyUsage:
         type === 'DS' ? KeyUsage.digitalSignature : KeyUsage.keyAgreement,
