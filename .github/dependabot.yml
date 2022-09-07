@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    assignees:
+      - kazkansouh
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    assignees:
+      - kazkansouh
+    ignore:
+      # version 11 of got is the last to support commonjs, so prevent upgrading to version 12+
+      - dependency-name: got
+        update-types: ["version-update:semver-major"]
