@@ -36,7 +36,7 @@
     "@types/node-red": "^1.2.1",
     "@types/ungap__structured-clone": "^0.3.0",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
-    "@typescript-eslint/parser": "^5.33.1",
+    "@typescript-eslint/parser": "^5.36.2",
     "css-loader": "^6.7.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.22.0",
