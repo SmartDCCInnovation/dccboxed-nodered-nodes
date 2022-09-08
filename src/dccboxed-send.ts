@@ -22,24 +22,11 @@ import { ConfigNode } from './dccboxed-config.properties'
 
 import type { Node, Properties } from './dccboxed-send.properties'
 
-import got from 'got'
 import {
-  constructDuis,
   isSimplifiedDuisInput,
   lookupCV,
-  parseDuis,
-  SimplifiedDuisInput,
-  isSimplifiedDuisOutputResponse,
-  isSimplifiedDuisResponseBody_ResponseMessage_X,
-  SimplifiedDuisOutputResponse,
   isCommandVariant,
 } from '@smartdcc/duis-parser'
-import { signDuis, validateDuis } from '@smartdcc/duis-sign-wrap'
-import { parse as contentType } from 'content-type'
-
-import { inspect } from 'node:util'
-import { signGroupingHeader } from '@smartdcc/gbcs-parser'
-import { ServerKeyStore } from './gbcs-node.common'
 
 export = function (RED: NodeAPI) {
   function DCCBoxedSend(this: Node, config: Properties & NodeDef) {
@@ -93,120 +80,18 @@ export = function (RED: NodeAPI) {
         )
         return
       }
-      const endpoints = {
-        'Non-Device Service': '/api/v1/serviceD',
-        'Send Command Service': '/api/v1/serviceS',
-        'Transform Service': '/api/v1/serviceT',
-      }
 
-      const asyncWorkerSend = async (
-        req: SimplifiedDuisInput,
-        endpoint:
-          | 'Non-Device Service'
-          | 'Send Command Service'
-          | 'Transform Service',
-        preserveCounter: boolean
-      ): Promise<SimplifiedDuisOutputResponse> => {
-        this.status({
-          fill: 'blue',
-          shape: 'dot',
-          text: `${endpoint}: signing duis`,
-        })
-
-        const preSignedXml = constructDuis('simplified', req)
-        console.log(preSignedXml)
-        const signedXml = await signDuis({ xml: preSignedXml, preserveCounter })
-
-        this.status({
-          fill: 'blue',
-          shape: 'dot',
-          text: `${endpoint}: requesting`,
-        })
-        const response = await got(
-          `http://${this.server.config.host}:${this.server.config.port}${endpoints[endpoint]}`,
-          {
-            timeout: { request: 3000 },
-            headers: { 'Content-Type': 'application/xml' },
-            method: 'POST',
-            body: signedXml,
-            throwHttpErrors: true,
-            followRedirect: true,
-          }
+      this.server
+        .request(
+          (s) =>
+            this.status({
+              fill: 'blue',
+              shape: 'dot',
+              text: s,
+            }),
+          cv.webService,
+          req
         )
-
-        if (
-          typeof response.headers['content-type'] !== 'string' ||
-          contentType(response.headers['content-type']).type !==
-            'application/xml'
-        ) {
-          throw new Error(
-            `incorrect content-type header received, expected application/xml, received: ${response.headers['content-type']}`
-          )
-        }
-        this.status({
-          fill: 'blue',
-          shape: 'dot',
-          text: `${endpoint}: validating`,
-        })
-        console.log(response.body)
-        const validatedDuis = await validateDuis({ xml: response.body })
-
-        const res = parseDuis('simplified', validatedDuis)
-        if (!isSimplifiedDuisOutputResponse(res)) {
-          console.log(inspect(response, { depth: 10, colors: true }))
-          throw new Error('invalid simplified duis')
-        }
-
-        this.status({
-          fill: res.header.responseCode.startsWith('I') ? 'green' : 'red',
-          shape: 'dot',
-          text: `${endpoint}: result code: ${res.header.responseCode}`,
-        })
-        return res
-      }
-
-      asyncWorkerSend(req, cv.webService, false)
-        .then(async (duis) => {
-          if (
-            cv.webService === 'Transform Service' &&
-            duis.header.responseCode === 'I0'
-          ) {
-            if (
-              duis.header.requestId &&
-              isSimplifiedDuisResponseBody_ResponseMessage_X(
-                'PreCommand',
-                duis.body
-              )
-            ) {
-              const signedGBCS = await signGroupingHeader(
-                duis.header.requestId?.originatorId,
-                duis.body.ResponseMessage.PreCommand.GBCSPayload,
-                (eui, type, privateKey) =>
-                  ServerKeyStore(this.server, RED, eui, type, privateKey)
-              )
-              const signedPrecommandDuis: SimplifiedDuisInput = {
-                header: {
-                  type: 'request',
-                  requestId: duis.header.requestId,
-                  commandVariant: 5,
-                  serviceReference: duis.body.ResponseMessage.ServiceReference,
-                  serviceReferenceVariant:
-                    duis.body.ResponseMessage.ServiceReferenceVariant,
-                },
-                body: { SignedPreCommand: { GBCSPayload: signedGBCS } },
-              }
-
-              return asyncWorkerSend(
-                signedPrecommandDuis,
-                'Send Command Service',
-                true
-              )
-            }
-            RED.log.warn(duis)
-            throw new Error('unexpected response from transform service')
-          }
-          return duis
-        })
         .then((duis) => {
           this.output(msg, duis)
 

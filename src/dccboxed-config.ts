@@ -21,18 +21,34 @@ import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
 
 import type {
   ConfigNode,
+  DspEndpoint,
   MessageStore,
   Properties,
 } from './dccboxed-config.properties'
 
 import * as bodyParser from 'body-parser'
-import { validateDuis } from '@smartdcc/duis-sign-wrap'
+import { signDuis, validateDuis } from '@smartdcc/duis-sign-wrap'
 import {
+  constructDuis,
   isSimplifiedDuisOutputResponse,
+  isSimplifiedDuisResponseBody_ResponseMessage_X,
   parseDuis,
+  SimplifiedDuisInput,
+  SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
 import { EventEmitter } from 'node:events'
 import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
+import got from 'got'
+import { parse as contentType } from 'content-type'
+import { inspect } from 'node:util'
+import { signGroupingHeader } from '@smartdcc/gbcs-parser'
+import { ServerKeyStore } from './gbcs-node.common'
+
+const endpoints: Record<DspEndpoint, string> = {
+  'Non-Device Service': '/api/v1/serviceD',
+  'Send Command Service': '/api/v1/serviceS',
+  'Transform Service': '/api/v1/serviceT',
+}
 
 export = function (RED: NodeAPI) {
   function ConfigConstruct(this: ConfigNode, config: Properties & NodeDef) {
@@ -74,6 +90,99 @@ export = function (RED: NodeAPI) {
       },
     }
     this.messageStore = messageStore
+
+    const asyncWorkerSend = async (
+      status: (status: string) => void | Promise<void>,
+      req: SimplifiedDuisInput,
+      endpoint: DspEndpoint,
+      preserveCounter: boolean
+    ): Promise<SimplifiedDuisOutputResponse> => {
+      await status(`${endpoint}: signing duis`)
+
+      const preSignedXml = constructDuis('simplified', req)
+      console.log(preSignedXml)
+      const signedXml = await signDuis({ xml: preSignedXml, preserveCounter })
+
+      await status(`${endpoint}: requesting`)
+
+      const response = await got(
+        `http://${this.config.host}:${this.config.port}${endpoints[endpoint]}`,
+        {
+          timeout: { request: 3000 },
+          headers: { 'Content-Type': 'application/xml' },
+          method: 'POST',
+          body: signedXml,
+          throwHttpErrors: true,
+          followRedirect: true,
+        }
+      )
+
+      if (
+        typeof response.headers['content-type'] !== 'string' ||
+        contentType(response.headers['content-type']).type !== 'application/xml'
+      ) {
+        throw new Error(
+          `incorrect content-type header received, expected application/xml, received: ${response.headers['content-type']}`
+        )
+      }
+      await status(`${endpoint}: validating`)
+      console.log(response.body)
+      const validatedDuis = await validateDuis({ xml: response.body })
+
+      const res = parseDuis('simplified', validatedDuis)
+      if (!isSimplifiedDuisOutputResponse(res)) {
+        RED.log.error(inspect(response, { depth: 10, colors: true }))
+        throw new Error('invalid simplified duis response')
+      }
+
+      this.status({
+        fill: res.header.responseCode.startsWith('I') ? 'green' : 'red',
+        shape: 'dot',
+        text: `${endpoint}: result code: ${res.header.responseCode}`,
+      })
+      return res
+    }
+
+    this.request = async (status, endpoint, req) => {
+      const res = await asyncWorkerSend(status, req, endpoint, false)
+      if (
+        endpoint === 'Transform Service' &&
+        res.header.responseCode === 'I0'
+      ) {
+        if (
+          res.header.requestId &&
+          isSimplifiedDuisResponseBody_ResponseMessage_X('PreCommand', res.body)
+        ) {
+          const signedGBCS = await signGroupingHeader(
+            res.header.requestId?.originatorId,
+            res.body.ResponseMessage.PreCommand.GBCSPayload,
+            (eui, type, privateKey) =>
+              ServerKeyStore(this, RED, eui, type, privateKey)
+          )
+          const signedPrecommandDuis: SimplifiedDuisInput = {
+            header: {
+              type: 'request',
+              requestId: res.header.requestId,
+              commandVariant: 5,
+              serviceReference: res.body.ResponseMessage.ServiceReference,
+              serviceReferenceVariant:
+                res.body.ResponseMessage.ServiceReferenceVariant,
+            },
+            body: { SignedPreCommand: { GBCSPayload: signedGBCS } },
+          }
+
+          return asyncWorkerSend(
+            status,
+            signedPrecommandDuis,
+            'Send Command Service',
+            true
+          )
+        }
+        RED.log.error(inspect(res, { depth: 10, colors: true }))
+        throw new Error('unexpected response from transform service')
+      }
+      return res
+    }
 
     RED.httpNode.post(
       this.config.responseEndpoint,

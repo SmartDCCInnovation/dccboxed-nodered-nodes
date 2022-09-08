@@ -26,6 +26,7 @@ export interface Properties {
 
 import type {
   RequestId,
+  SimplifiedDuisInput,
   SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
 import { EventEmitter } from 'node:events'
@@ -48,9 +49,19 @@ interface DuisEmitter extends EventEmitter {
   on(eventName: 'error', listener: (e: Error) => void): this
 }
 
+export type DspEndpoint =
+  | 'Non-Device Service'
+  | 'Send Command Service'
+  | 'Transform Service'
+
 export interface ConfigNode extends Node {
   config: Properties
   events: DuisEmitter
   keyStore?: BoxedKeyStore
   messageStore: MessageStore
+  request: (
+    status: (status: string) => void | Promise<void>,
+    endpoint: DspEndpoint,
+    duis: SimplifiedDuisInput
+  ) => Promise<SimplifiedDuisOutputResponse>
 }
