@@ -31,6 +31,24 @@ import { ConfigNode } from './dccboxed-config.properties'
 import type { ReceiveNode, Properties } from './dccboxed-receive.properties'
 import { ServerKeyStore } from './gbcs-node.common'
 
+function buildRegExp(ty: string, value?: string): RegExp {
+  switch (ty) {
+    case 'none':
+      return RegExp(/(?!x)x/) // contradiction regex
+    case 're':
+      return RegExp(value ?? '.*')
+    case 'list':
+      if (value !== undefined) {
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+        const values = value
+          .split(',')
+          .map((s) => s.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        return RegExp(`^(${values.reduce((a, x) => `${a}|${x}`)})$`)
+      }
+  }
+  return RegExp('.*')
+}
+
 export = function (RED: NodeAPI) {
   function DCCBoxedReceive(this: ReceiveNode, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
@@ -50,35 +68,42 @@ export = function (RED: NodeAPI) {
       }
     }
 
-    this.outputResponsesFilter = RegExp(
-      config.outputResponses ? config.outputResponsesFilter ?? '.*' : '^$'
+    this.outputResponsesFilter = buildRegExp(
+      config.outputResponsesFilterType,
+      config.outputResponsesFilter
     )
-    this.outputDeviceAlertsFilter = RegExp(
-      config.outputDeviceAlerts ? config.outputDeviceAlertsFilter ?? '.*' : '^$'
+    this.outputDeviceAlertsFilter = buildRegExp(
+      config.outputDeviceAlertsFilterType,
+      config.outputDeviceAlertsFilter
     )
-    this.outputDCCAlertsFilter = RegExp(
-      config.outputDCCAlerts ? config.outputDCCAlertsFilter ?? '.*' : '^$'
+    this.outputDCCAlertsFilter = buildRegExp(
+      config.outputDCCAlertsFilterType,
+      config.outputDCCAlertsFilter
     )
 
     {
-      const { outputResponses, outputDeviceAlerts, outputDCCAlerts } = config
+      const {
+        outputResponsesFilterType,
+        outputDeviceAlertsFilterType,
+        outputDCCAlertsFilterType,
+      } = config
       this.sendOutput = function (o) {
         const msgs: (NodeMessage | null)[] = []
-        if (outputResponses) {
+        if (outputResponsesFilterType !== 'none') {
           if (o.type === 'response') {
             msgs.push(o.payload)
           } else {
             msgs.push(null)
           }
         }
-        if (outputDeviceAlerts) {
+        if (outputDeviceAlertsFilterType !== 'none') {
           if (o.type === 'devicealert') {
             msgs.push(o.payload)
           } else {
             msgs.push(null)
           }
         }
-        if (outputDCCAlerts) {
+        if (outputDCCAlertsFilterType !== 'none') {
           if (o.type === 'dccalert') {
             msgs.push(o.payload)
           } else {

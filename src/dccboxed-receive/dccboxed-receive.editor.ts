@@ -32,25 +32,25 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
     output: { value: 'payload.response', required: true },
     decodeGbcs: { value: true, required: true },
     gbcsOutput: { value: 'payload.gbcs', required: true },
-    outputResponses: { value: true, required: true },
-    outputDeviceAlerts: { value: true, required: true },
-    outputDCCAlerts: { value: true, required: true },
     outputResponsesFilter: { value: undefined, required: false },
     outputDeviceAlertsFilter: { value: undefined, required: false },
     outputDCCAlertsFilter: { value: undefined, required: false },
+    outputResponsesFilterType: { value: 'all', required: false },
+    outputDeviceAlertsFilterType: { value: 'all', required: false },
+    outputDCCAlertsFilterType: { value: 'all', required: false },
     outputs: { value: 4 },
   },
   inputs: 0,
   outputs: 4,
   outputLabels(idx: number) {
     const labels: string[] = []
-    if (this.outputResponses) {
+    if (this.outputResponsesFilterType !== 'none') {
       labels.push('I0 (response)')
     }
-    if (this.outputDeviceAlerts) {
+    if (this.outputDeviceAlertsFilterType !== 'none') {
       labels.push('I0 (device alert)')
     }
-    if (this.outputDCCAlerts) {
+    if (this.outputDCCAlertsFilterType !== 'none') {
       labels.push('I0 (dcc alert)')
     }
     labels.push('Error')
@@ -73,23 +73,44 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
       }
     })
     const setOutputs = () => {
+      console.log('change')
       $('input#node-input-outputs').val(
         JSON.stringify(
-          1 + $('input[type=checkbox][id^=node-input-output]:checked').length
+          1 +
+            $(
+              'input[type=hidden][id^=node-input-output][id$=FilterType]:not([value=none])'
+            ).length
         )
       )
     }
-    $('input[type=checkbox][id^=node-input-output]').on('change', setOutputs)
-    $('input[type=checkbox][id^=node-input-output]').on('change', function () {
-      const input = $(this)
-      if (input.is(':checked')) {
-        $(`div.${input.attr('id')}`).show()
-      } else {
-        $(`div.${input.attr('id')}`).hide()
+    $('input[type=text][id^=node-input-output][id$=Filter]').each(
+      (index, element) => {
+        const el = $(element)
+        el.typedInput({
+          types: [
+            're',
+            {
+              value: 'list',
+              hasValue: true,
+              label: 'Comma Separated Strings',
+              icon: 'fa fa-ellipsis-h',
+            },
+            {
+              value: 'none',
+              hasValue: false,
+              label: 'Hide Output (No Messages)',
+              icon: 'fa fa-ban',
+            },
+            {
+              value: 'all',
+              hasValue: false,
+              label: 'All Messages (No Filter)',
+              icon: 'fa fa-check',
+            },
+          ],
+          typeField: `#${el.attr('id')}Type`,
+        }).on('change', setOutputs)
       }
-    })
-    $('input[type=text][id^=node-input-output][id$=Filter]').typedInput({
-      types: ['re'],
-    })
+    )
   },
 })
