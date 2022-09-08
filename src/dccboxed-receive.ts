@@ -25,7 +25,7 @@ import {
   SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
 import { minimizeMessage, parseGbcsMessage } from '@smartdcc/gbcs-parser'
-import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
+import type { NodeDef, NodeAPI, NodeMessage, NodeStatus } from 'node-red'
 import { ConfigNode } from './dccboxed-config.properties'
 
 import type { ReceiveNode, Properties } from './dccboxed-receive.properties'
@@ -119,7 +119,17 @@ export = function (RED: NodeAPI) {
       }
     }
 
-    let tid: NodeJS.Timeout
+    let timerId: NodeJS.Timeout | undefined = undefined
+    const setStatus: (status: NodeStatus) => void = (status) => {
+      if (timerId !== undefined) {
+        clearTimeout(timerId)
+      }
+      this.status(status)
+      timerId = setTimeout(() => {
+        this.status({})
+        timerId = undefined
+      }, 5000)
+    }
 
     const NewDuis = (
       sd: SimplifiedDuisOutputResponse,
@@ -150,21 +160,22 @@ export = function (RED: NodeAPI) {
         return this.sendOutput({ type: 'none' })
       }
 
-      this.status({
+      setStatus({
         fill: 'green',
         shape: 'dot',
         text: `result code: ${sd.header.responseCode}`,
       })
-      clearTimeout(tid)
-      tid = setTimeout(() => {
-        this.status({})
-      }, 5000)
       msg = msg ?? { _msgid: '' }
       this.output(msg, sd)
       if (sd.header.responseCode !== 'I0') {
         this.sendOutput({ type: 'error', payload: msg })
       } else {
         if (isSimplifiedDuisResponseBody_ResponseMessage(sd.body)) {
+          setStatus({
+            fill: 'green',
+            shape: 'dot',
+            text: `device response: ${sd.body.ResponseMessage.ServiceReferenceVariant}`,
+          })
           if (
             this.gbcsOutput &&
             isSimplifiedDuisResponseBody_ResponseMessage_X(
@@ -220,7 +231,7 @@ export = function (RED: NodeAPI) {
                 this.sendOutput({ type: 'devicealert', payload: _msg })
               })
               .catch((e) => this.error(e))
-            this.status({
+            setStatus({
               fill: 'green',
               shape: 'dot',
               text: `device alert code: ${sd.body.DeviceAlertMessage.AlertCode}`,
@@ -230,7 +241,7 @@ export = function (RED: NodeAPI) {
           }
         } else if (isSimplifiedDuisResponseBody_DCCAlertMessage(sd.body)) {
           if (this.gbcsOutput) {
-            this.status({
+            setStatus({
               fill: 'green',
               shape: 'dot',
               text: `dcc alert code: ${sd.body.DCCAlertMessage.DCCAlertCode}`,

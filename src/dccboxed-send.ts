@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { NodeDef, NodeAPI } from 'node-red'
+import type { NodeDef, NodeAPI, NodeStatus } from 'node-red'
 import { ConfigNode } from './dccboxed-config.properties'
 
 import type { Node, Properties } from './dccboxed-send.properties'
@@ -42,10 +42,21 @@ export = function (RED: NodeAPI) {
         RED.util.setMessageProperty(msg, output, value, true)
       }
     }
+    let timerId: NodeJS.Timeout | undefined = undefined
+    const setStatus: (status: NodeStatus) => void = (status) => {
+      if (timerId !== undefined) {
+        clearTimeout(timerId)
+      }
+      this.status(status)
+      timerId = setTimeout(() => {
+        this.status({})
+        timerId = undefined
+      }, 5000)
+    }
     this.on('input', (msg, send, done) => {
       const req = this.input(msg)
       if (!isSimplifiedDuisInput(req)) {
-        this.status({
+        setStatus({
           fill: 'yellow',
           shape: 'dot',
           text: 'bad input',
@@ -55,7 +66,7 @@ export = function (RED: NodeAPI) {
       }
 
       if (req.header.type !== 'request') {
-        this.status({
+        setStatus({
           fill: 'yellow',
           shape: 'dot',
           text: 'bad input',
@@ -68,7 +79,7 @@ export = function (RED: NodeAPI) {
         : lookupCV(req.header.commandVariant)
 
       if (cv.number === 3 || cv.number === 7) {
-        this.status({
+        setStatus({
           fill: 'yellow',
           shape: 'dot',
           text: 'unsupported cv',
@@ -84,7 +95,7 @@ export = function (RED: NodeAPI) {
       this.server
         .request(
           (s) =>
-            this.status({
+            setStatus({
               fill: 'blue',
               shape: 'dot',
               text: s,
@@ -96,27 +107,38 @@ export = function (RED: NodeAPI) {
           this.output(msg, duis)
 
           if (duis.header.responseCode === 'I0') {
+            setStatus({
+              fill: 'green',
+              shape: 'dot',
+              text: `result code: ${duis.header.responseCode}`,
+            })
             send([msg, null, null])
           } else if (duis.header.responseCode === 'I99') {
             if (duis.header.requestId) {
               this.server.messageStore.store(duis.header.requestId, msg)
             }
+            setStatus({
+              fill: 'green',
+              shape: 'dot',
+              text: `result code: ${duis.header.responseCode}`,
+            })
             send([null, msg, null])
           } else {
+            setStatus({
+              fill: 'red',
+              shape: 'dot',
+              text: `result code: ${duis.header.responseCode}`,
+            })
             send([null, null, msg])
           }
         })
         .catch((e) => {
-          this.status({
+          setStatus({
             fill: 'red',
             shape: 'dot',
             text: 'sending failed',
           })
           done(e)
-        })
-        .finally(() => {
-          /* todo: use return timerid to avoid accidental overwrite */
-          setTimeout(() => this.status({}), 5000)
         })
     })
   }
