@@ -6,12 +6,16 @@
 
 [DCC&nbsp;Boxed][boxed] is a tool for (emulated) end-2-end testing within the UK
 smart metering network. This project provides a number of nodes that enable
-[Node-RED][nodered] to send and receive requests to a DCC Boxed instance.
+[Node-RED][nodered] to send and receive requests to a DCC Boxed instance. The
+intention is to provide an easy to use tool set to allow users to interface with
+DCC&nbsp;Boxed without worrying about technical issues such as xml and correctly
+signing commands.
 
 The functionality exposed includes:
 
-  * Select a template [DUIS][duis] request from the RTDS library
-  * Send the [DUIS][duis] request to a DCC Boxed
+  * A library of [DUIS][duis] templates, i.e. commands (taken from RTDS)
+  * Send the [DUIS][duis] request to a DCC Boxed (*critical*, *non-critical*,
+    *device* and *non-device* supported).
   * Receive a [DUIS][duis] response (both synchronous and asynchronously)
 
 These three functions greatly reduce the complexity needed to interface with
@@ -44,7 +48,8 @@ directly on the host without a sandbox/docker environment. This simplifies the
 process of installing `java`. 
 
   * If running without `java` installed, an error will be generated when the
-    sign/validate node is executed.
+    sign/validate node is executed. Thus, will be unable to submit the command
+    to DCC&nbsp;Boxed.
 
 ### Typical Usage
 
@@ -58,7 +63,6 @@ The typical use case of the nodes in this project is built around the following
   * `dccboxed-receive` - Asynchronously receive DUIS responses from DCC Boxed
     (i.e. typically will involve response from a device or an alert)
 
-
 The following shows a minimal setup using these three nodes:
 
 ![minimal setup](images/minimal.png)
@@ -67,9 +71,10 @@ The following shows a minimal setup using these three nodes:
 
 ![duis-template example](images/duis-template.png)
 
-The `duis-template` node provides access to a catalog of DUIS templates. The
-catalog can be searched by keywords or service requests. The node is used by
-dragging it to the canvas and then configuring its properties in the usual way.
+The `duis-template` node provides access to a catalog of [DUIS
+templates][duis-templates]. The catalog can be searched by keywords or service
+requests. The node is used by dragging it to the canvas and then configuring its
+properties in the usual way.
 
 ![duis-template basic](images/duis-template-basic.png)
 
@@ -142,6 +147,16 @@ preserved:
 
 ![dccboxed-receive context](images/dccboxed-receive-context.png)
 
+It is also possible to have multiple `dccboxed-receive` nodes. This allows for
+responses of different service requests or alerts to be processed by different
+parts of the NodeRED flow (or different flows). The following two screen shots
+demonstrate this, where the first one only will receive the response to a 4.1.1
+service request and the second node will receive all device alerts.
+
+![dccboxed-receive filter service request 4.1.1](images/dccboxed-receive-config-4.1.1.png)
+
+![dccboxed-receive filter device alerts](images/dccboxed-receive-config-alert.png)
+
 ### Advanced
 
 The above high level nodes automate the sending and receiving of DUIS requests
@@ -160,7 +175,30 @@ required this is provided by the following nodes:
 These blocks are designed to be configurable, and expose many more configuration
 options than `dccboxed-send` and `dccboxed-receive`.
 
-## Building
+## Reusable Dependencies
+
+This project is a thin wrapper/user interface over a handful of other projects.
+These other projects provide the essential functions required to interface with
+a DCC&nbsp;Boxed and include:
+
+* [`duis-parser`][duis-parser] - TypeScript library that is capable of encoding and
+  decoding DUIS requests and responses.
+* [`duis-templates`][duis-templates] - TypeScript collection of RTDS DUIS templates.
+* [`dccboxed-signing-tool`][sign] - TypeScript/Java application to sign and
+  validate XML signatures required by DCC&nbsp;Boxed.
+* [`gbcs-parser`][gbcs-parser] - TypeScript library that can decode GBCS
+  messages, validate remote party signatures and sign pre-commands. This library
+  is based on the [`HenryGiraldo/gbcs-parser-js`][gbcs-parser-js] parser.
+* [`dccboxed-keystore`] - TypeScript library that stores remote
+  party/organisation certificates and private keys along with the ability to
+  query the SMKI interface on DCC&nbsp;Boxed for device certificates.
+
+These tools are all open source and can easily be reused and assembled into a
+tool that interfaces with DCC&nbsp;Boxed as required. See the
+[`dccboxed-config.ts`](src/dccboxed-config.ts) file for an example of how they
+can be tied together into an application.
+
+## Building and Installing Locally
 
 To build locally, run the following:
 
@@ -170,6 +208,9 @@ npm run build
 
 This will build both the frontend (using `webpack`) and backend (using `tsc`).
 The result will be placed into `dist` folder.
+
+You can then use `npm pack` or `npm link`; afterwards install into the NodeRED
+data directory. Typically this will be located at `~/.nodered`.
 
 ## Contributing
 
@@ -198,5 +239,9 @@ under GPLv3.
 [boxed]: https://www.smartdcc.co.uk/our-smart-network/network-products-services/dcc-boxed/ "DCC Boxed"
 [sign]: https://github.com/SmartDCCInnovation/dccboxed-signing-tool "DCC Boxed Signing Tool"
 [duis-parser]: https://github.com/SmartDCCInnovation/duis-parser "DUIS Parser"
+[duis-templates]: https://github.com/SmartDCCInnovation/duis-templates "DUIS Templates"
+[gbcs-parser]: https://github.com/SmartDCCInnovation/gbcs-parser "GBCS Parser"
+[dccboxed-keystore]: https://github.com/SmartDCCInnovation/dccboxed-keystore "DCC Boxed Key Store"
 [nodered]: https://nodered.org/ "Node-RED"
 [palette]: https://nodered.org/docs/user-guide/runtime/adding-nodes "Node-RED: Adding nodes to the palette"
+[gbcs-parser-js]: https://github.com/HenryGiraldo/gbcs-parser-js "HenryGiraldo/gbcs-parser-js"
