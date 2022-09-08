@@ -24,12 +24,12 @@ export interface Properties {
   output: string
   decodeGbcs: boolean
   gbcsOutput: string
-  outputResponses: boolean
-  outputDeviceAlerts: boolean
-  outputDCCAlerts: boolean
   outputResponsesFilter?: string
   outputDeviceAlertsFilter?: string
   outputDCCAlertsFilter?: string
+  outputResponsesFilterType: string
+  outputDeviceAlertsFilterType: string
+  outputDCCAlertsFilterType: string
   outputs: number
 }
 
