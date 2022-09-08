@@ -43,6 +43,7 @@ import { parse as contentType } from 'content-type'
 import { inspect } from 'node:util'
 import { signGroupingHeader } from '@smartdcc/gbcs-parser'
 import { ServerKeyStore } from './gbcs-node.common'
+import { open } from 'node:fs/promises'
 
 const endpoints: Record<DspEndpoint, string> = {
   'Non-Device Service': '/api/v1/serviceD',
@@ -100,8 +101,8 @@ export = function (RED: NodeAPI) {
       await status(`${endpoint}: signing duis`)
 
       const preSignedXml = constructDuis('simplified', req)
-      console.log(preSignedXml)
       const signedXml = await signDuis({ xml: preSignedXml, preserveCounter })
+      this.logger(signedXml)
 
       await status(`${endpoint}: requesting`)
 
@@ -126,7 +127,7 @@ export = function (RED: NodeAPI) {
         )
       }
       await status(`${endpoint}: validating`)
-      console.log(response.body)
+      this.logger(response.body)
       const validatedDuis = await validateDuis({ xml: response.body })
 
       const res = parseDuis('simplified', validatedDuis)
@@ -141,6 +142,31 @@ export = function (RED: NodeAPI) {
         text: `${endpoint}: result code: ${res.header.responseCode}`,
       })
       return res
+    }
+
+    this.logger = () => {
+      /* no op */
+    }
+    switch (config.loggerType) {
+      case 'stdout':
+        this.logger = (s) => RED.log.info(s)
+        break
+      case 'file':
+        ;(async () => {
+          if (typeof config.logger === 'string') {
+            this.logfile = await open(config.logger, 'a', 0o660)
+            this.logger = async (s) => {
+              await this.logfile?.write(`--- ${new Date().toString()} ---\n`)
+              await this.logfile?.write(s)
+              await this.logfile?.write('\n')
+            }
+          } else {
+            throw new Error('duis logging disabled as no logger file provided')
+          }
+        })().catch((e) => {
+          RED.log.warn(`unable to start duis logger: ${e}`)
+        })
+        break
     }
 
     this.request = async (status, endpoint, req) => {
@@ -192,7 +218,7 @@ export = function (RED: NodeAPI) {
           next()
           return
         }
-        console.log(req.body)
+        this.logger(req.body)
         validateDuis({ xml: req.body })
           .then((validated) => parseDuis('simplified', validated))
           .then((duis) => {
@@ -236,6 +262,9 @@ export = function (RED: NodeAPI) {
           }
         }
       })
+      if (this.logfile !== undefined) {
+        this.logfile.close()
+      }
     })
   }
   RED.nodes.registerType('dccboxed-config', ConfigConstruct)

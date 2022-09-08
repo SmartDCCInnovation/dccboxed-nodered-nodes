@@ -42,8 +42,35 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
       value: undefined,
       required: false,
     },
+    logger: { value: undefined },
+    loggerType: { value: 'stdout', required: true },
   },
   label: function () {
     return this.name ?? `${this.host}:${this.port}`
+  },
+  oneditprepare() {
+    $('#node-config-input-logger').typedInput({
+      types: [
+        {
+          value: 'file',
+          hasValue: true,
+          label: 'Log to File',
+          icon: 'fa fa-file-o',
+        },
+        {
+          value: 'none',
+          hasValue: false,
+          label: 'No logging',
+          icon: 'fa fa-ban',
+        },
+        {
+          value: 'stdout',
+          hasValue: false,
+          label: 'Log to StdOut',
+          icon: 'fa fa-check',
+        },
+      ],
+      typeField: '#node-config-input-loggerType',
+    })
   },
 })

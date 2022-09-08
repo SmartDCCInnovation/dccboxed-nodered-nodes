@@ -22,6 +22,8 @@ export interface Properties {
   port: number
   responseEndpoint: string
   localKeyStore?: string
+  loggerType: string
+  logger?: string
 }
 
 import type {
@@ -32,6 +34,7 @@ import type {
 import { EventEmitter } from 'node:events'
 import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
 import type { Node, NodeMessage } from 'node-red'
+import type { FileHandle } from 'node:fs/promises'
 
 export interface MessageStore {
   store(reqid: RequestId | undefined, msg: NodeMessage): void
@@ -64,4 +67,6 @@ export interface ConfigNode extends Node {
     endpoint: DspEndpoint,
     duis: SimplifiedDuisInput
   ) => Promise<SimplifiedDuisOutputResponse>
+  logger: (msg: string) => void | Promise<void>
+  logfile?: FileHandle
 }

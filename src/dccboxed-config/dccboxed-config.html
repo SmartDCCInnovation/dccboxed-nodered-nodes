@@ -53,9 +53,18 @@
     />
   </div>
   <div class="form-row form-tips">
-    If a local keystore is not provided, an ephemeral temporary file will be
-    used.
+    If a local keystore file is not provided, an ephemeral temporary file will
+    be used.
   </div>
+
+  <div class="form-row">
+    <label for="node-config-input-logger"
+      ><i class="fa fa-floppy-o"></i> DUIS Log</label
+    >
+    <input id="node-config-input-logger" type="text" />
+    <input id="node-config-input-loggerType" type="hidden" />
+  </div>
+
   <div class="form-row">
     <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name" />
