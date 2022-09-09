@@ -77,5 +77,14 @@
     "dist",
     "LICENSE",
     "README.md"
+  ],
+  "keywords": [
+    "node-red",
+    "duis",
+    "gbcs",
+    "front-end",
+    "smartdcc",
+    "smartmeter",
+    "smets2"
   ]
 }
