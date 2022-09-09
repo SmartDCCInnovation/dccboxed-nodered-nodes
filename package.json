@@ -55,7 +55,7 @@
     "@smartdcc/duis-parser": "^0.2.0",
     "@smartdcc/duis-sign-wrap": "^0.1.0",
     "@smartdcc/duis-templates": "^0.0.3",
-    "@smartdcc/gbcs-parser": "^0.0.4",
+    "@smartdcc/gbcs-parser": "^0.1.0",
     "@ungap/structured-clone": "^1.0.1",
     "content-type": "^1.0.4",
     "got": "^11.8.5"
