@@ -69,7 +69,7 @@ The typical use case of the nodes in this project is built around the following
     (i.e. typically will involve response from a device or an alert)
 
 For an example of how to configure these nodes, please see the following
-[video](images/meter-read-short.mp4).
+[video](images/meter-read.mp4).
 
 The following shows a minimal setup using these three nodes:
 
