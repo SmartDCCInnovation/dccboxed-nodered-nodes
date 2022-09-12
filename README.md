@@ -4,6 +4,8 @@
 [![Tests](https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes/actions/workflows/node.yml/badge.svg?branch=main&event=push)](https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes/actions/workflows/node.yml)
 [![GitHub version](https://badge.fury.io/gh/SmartDCCInnovation%2Fdccboxed-nodered-nodes.svg)](https://badge.fury.io/gh/SmartDCCInnovation%2Fdccboxed-nodered-nodes)
 
+![demo](images/meter-read-short.gif)
+
 [DCC&nbsp;Boxed][boxed] is a tool for (emulated) end-2-end testing within the UK
 smart metering network. This project provides a number of nodes that enable
 [Node-RED][nodered] to send and receive requests to a DCC Boxed instance. The
@@ -33,7 +35,10 @@ If you have not already, install [*Node-RED*][nodered]. The below assumes that
 in the project are developed and tested against version 3.0.2 of *Node-RED*.
 
 Install `@smartdcc/dccboxed-nodered-nodes` package into *Node-RED*'s palette
-using the [standard process][palette].
+using the [standard process][palette]. See below image for an example of
+installing from the user interface.
+
+![manage palette](images/nodered-palette-manage.png)
 
 <img align="right" width="150" src="images/palette.png">
 
@@ -62,6 +67,9 @@ The typical use case of the nodes in this project is built around the following
     or result of a non-device request).
   * `dccboxed-receive` - Asynchronously receive DUIS responses from DCC Boxed
     (i.e. typically will involve response from a device or an alert)
+
+For an example of how to configure these nodes, please see the following
+[video](images/meter-read-short.mp4).
 
 The following shows a minimal setup using these three nodes:
 
