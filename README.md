@@ -69,7 +69,8 @@ The typical use case of the nodes in this project is built around the following
     (i.e. typically will involve response from a device or an alert)
 
 For an example of how to configure these nodes, please see the following
-[video](images/meter-read.mp4).
+[video](images/meter-read.mp4). Remember, it is also required to configure the
+`Receive Response Service address` on DCC&nbsp;Boxed.
 
 The following shows a minimal setup using these three nodes:
 
@@ -117,7 +118,12 @@ The properties of a `dccboxed-config` are as follows:
 
 Importantly, ensure the *Host* and *Port* align point to the DCC&nbsp;Boxed
 server. The *Response* field needs to be configured on the DCC&nbsp;Boxed DUIS
-Interface, so DCC&nbsp;Boxed will be able to correctly send responses.
+Interface, so DCC&nbsp;Boxed will be able to correctly send responses. For
+example, if NodeRED is running on a machine with IP address `192.168.0.5`,
+DCC&nbsp;Boxed could be configured as follows (assuming a default value of
+`/smartdcc/duis` in the *Response* field):
+
+![dccboxed duis response address](images/dccboxed-config-response.png)
 
 #### Node `dccboxed-send`
 
