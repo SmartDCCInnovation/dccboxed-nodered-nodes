@@ -27,6 +27,7 @@ import type {
   TemplateDTO,
   TemplateLookupDTO,
 } from '../duis-template.properties'
+import { settings } from '../editor-global-settings'
 
 import './duis-template.css'
 
@@ -143,8 +144,7 @@ function renderTemplateDTO(template: TemplateDTO): JQuery {
 }
 
 RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
-  category: 'smartdcc',
-  color: '#a300cc',
+  ...settings,
   defaults: {
     name: { value: undefined, required: false },
     deafultName: { value: undefined, required: false },

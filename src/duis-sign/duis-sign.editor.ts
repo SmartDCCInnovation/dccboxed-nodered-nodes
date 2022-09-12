@@ -23,12 +23,12 @@ import type {
   EditorNodeInstance,
 } from 'node-red'
 import { Properties } from '../duis-sign.properties'
+import { settings } from '../editor-global-settings'
 
 declare const RED: EditorRED
 
 RED.nodes.registerType<Properties & EditorNodeProperties>('duis-sign', {
-  category: 'smartdcc',
-  color: '#a300cc',
+  ...settings,
   defaults: {
     name: { value: '' },
     mode: {
