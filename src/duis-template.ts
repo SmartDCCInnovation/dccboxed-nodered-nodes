@@ -32,9 +32,15 @@ import structuredClone from '@ungap/structured-clone'
 
 export = function (RED: NodeAPI) {
   /* asynchronously load the templates on startup */
+  let logCounter = 0
   const templates = loadTemplates({
     logger(msg) {
-      RED.log.warn(msg)
+      logCounter += 1
+      if (logCounter < 3) {
+        RED.log.warn(msg)
+      } else if (logCounter === 3) {
+        RED.log.info('skipping further template loading issues')
+      }
     },
   })
 
