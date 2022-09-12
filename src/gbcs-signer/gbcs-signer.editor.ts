@@ -19,6 +19,8 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { KeyDefinition, Properties } from '../gbcs-signer.properties'
+import { settings } from '../editor-global-settings'
+
 import './gbcs-signer.css'
 
 import 'jquery-mask-plugin'
@@ -27,8 +29,7 @@ declare const RED: EditorRED
 declare const $: JQueryStatic
 
 RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
-  category: 'smartdcc',
-  color: '#a300cc',
+  ...settings,
   defaults: {
     name: { value: '' },
     server: { value: undefined, type: 'dccboxed-config', required: false },

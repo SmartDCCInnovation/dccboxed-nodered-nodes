@@ -150,10 +150,20 @@ asynchronous DUIS responses from a DCC Boxed instance. This includes:
 
 The final step of of reconciliation is used so its possible to link asynchronous
 responses with the context of the message that triggered the request. For
-example, it could link a HTTP request input with its output as the `msg` is
-preserved:
+example, it could link a HTTP request input with its output as the original
+`msg` object is preserved. The following shows this, where if a user makes a
+http request to the `/trigger` endpoint, it will start a SRV 4.1.1, and once the
+response is obtained it is sent to the http client that make the request to
+`/trigger`.
 
 ![dccboxed-receive context](images/dccboxed-receive-context.png)
+
+Please note, when the `msg` object is reconciled it is only shallow copied. E.g.
+if there are multiple `dccboxed-receive` nodes (see below), each could receive a
+copy of the same `msg.payload`, resulting in changes by one node in
+`msg.payload` being observed unexpectedly in a different flow. If a deep copy is
+required, this will need to be done in any of the nodes downstream from
+`dccboxed-receive`.
 
 It is also possible to have multiple `dccboxed-receive` nodes. This allows for
 responses of different service requests or alerts to be processed by different

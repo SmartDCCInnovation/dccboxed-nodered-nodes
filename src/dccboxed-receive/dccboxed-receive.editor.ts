@@ -19,13 +19,13 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { Properties } from '../dccboxed-receive.properties'
+import { settings } from '../editor-global-settings'
 
 declare const RED: EditorRED
 declare const $: JQueryStatic
 
 RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
-  category: 'smartdcc',
-  color: '#a300cc',
+  ...settings,
   defaults: {
     name: { value: '' },
     server: { value: '', type: 'dccboxed-config', required: true },
