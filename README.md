@@ -216,7 +216,7 @@ a DCC&nbsp;Boxed and include:
 * [`gbcs-parser`][gbcs-parser] - TypeScript library that can decode GBCS
   messages, validate remote party signatures and sign pre-commands. This library
   is based on the [`HenryGiraldo/gbcs-parser-js`][gbcs-parser-js] parser.
-* [`dccboxed-keystore`] - TypeScript library that stores remote
+* [`dccboxed-keystore`][dccboxed-keystore] - TypeScript library that stores remote
   party/organisation certificates and private keys along with the ability to
   query the SMKI interface on DCC&nbsp;Boxed for device certificates.
 
