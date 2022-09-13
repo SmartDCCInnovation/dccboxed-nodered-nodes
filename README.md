@@ -68,9 +68,11 @@ The typical use case of the nodes in this project is built around the following
   * `dccboxed-receive` - Asynchronously receive DUIS responses from DCC Boxed
     (i.e. typically will involve response from a device or an alert)
 
-For an example of how to configure these nodes, please see the following
-[video](images/meter-read.mp4). Remember, it is also required to configure the
-`Receive Response Service address` on DCC&nbsp;Boxed.
+For an example of how to configure these nodes, please see the following.
+Remember, it is also required to configure the `Receive Response Service
+address` on DCC&nbsp;Boxed.
+
+![video](images/meter-read.mp4)
 
 The following shows a minimal setup using these three nodes:
 
