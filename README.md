@@ -197,7 +197,10 @@ required this is provided by the following nodes:
     signed pre-command.
 
 These blocks are designed to be configurable, and expose many more configuration
-options than `dccboxed-send` and `dccboxed-receive`.
+options than `dccboxed-send` and `dccboxed-receive`. For instance, the
+`gbcs-parser` and `gbcs-signer` allows fine grain control over key material used
+and the `duis-parser` can provide raw view of the parsed XML before it is
+processed/enriched.
 
 ## Reusable Dependencies
 
