@@ -32,7 +32,7 @@ jobs:
               "prettier",
               "del-cli"
               ]'),
-              steps.dependabot-metadata.outputs.dependency-names)
+              steps.metadata.outputs.dependency-names)
           )
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
