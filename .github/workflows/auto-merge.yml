@@ -24,14 +24,14 @@ jobs:
             steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
             steps.metadata.outputs.update-type == 'version-update:semver-minor'
           ) && (
-            contains([
+            contains(fromJSON('[
               "@typescript-eslint/eslint-plugin",
               "@typescript-eslint/parser",
               "eslint",
               "eslint-config-prettier",
               "prettier",
               "del-cli"
-              ],
+              ]'),
               steps.dependabot-metadata.outputs.dependency-names)
           )
         run: gh pr merge --auto --rebase "$PR_URL"
