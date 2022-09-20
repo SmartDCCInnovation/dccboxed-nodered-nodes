@@ -24,15 +24,15 @@ import { KeyObject, createPublicKey, createPrivateKey } from 'node:crypto'
 import type { GbcsNode, Properties } from './gbcs-node.properties'
 import { normaliseEUI, KeyUsage } from '@smartdcc/dccboxed-keystore'
 
-function removeNotBoxedEntries<T extends { role?: number; name?: string }>({
-  role,
-  name,
-}: T): boolean {
-  return (
+function removeNotBoxedEntries<T extends { role?: number; name?: string }>(
+  prepayment: boolean
+): ({ role, name }: T) => boolean {
+  return ({ role, name }: T) =>
     role !== 135 &&
     (name === undefined ||
-      name.match(/Z1-[a-zA-Z0-9]+(?!PP)[a-zA-Z0-9]{2}-/) !== null)
-  )
+      (prepayment && name.match(/^Z1-[a-zA-Z0-9]+PP-/) !== null) ||
+      (!prepayment &&
+        name.match(/^Z1-[a-zA-Z0-9]+(?!PP)[a-zA-Z0-9]{2}-/) !== null))
 }
 
 export async function ServerKeyStore(
@@ -40,21 +40,28 @@ export async function ServerKeyStore(
   RED: NodeAPI,
   eui: string | Uint8Array,
   type: 'KA' | 'DS',
-  privateKey?: boolean
+  options: {
+    privateKey?: boolean
+    prePayment?: boolean
+  }
 ): Promise<KeyObject> {
-  if (privateKey) {
+  if (options.privateKey) {
     let results = await server.keyStore?.query({
       eui,
       keyUsage:
         type === 'DS' ? KeyUsage.digitalSignature : KeyUsage.keyAgreement,
       lookup: 'privateKey',
     })
-    results = (results ?? []).filter(removeNotBoxedEntries)
+    results = (results ?? []).filter(
+      removeNotBoxedEntries(options.prePayment ?? false)
+    )
     if (results.length === 1) {
       return results[0].privateKey
     } else {
       RED.log.warn(
-        `searching for ${normaliseEUI(eui)} privateKey found ${results.length}`
+        `searching for ${normaliseEUI(eui)} privateKey ${
+          options.prePayment ? '(prepayment)' : ''
+        } found ${results.length} candidates`
       )
     }
   } else {
@@ -64,19 +71,23 @@ export async function ServerKeyStore(
         type === 'DS' ? KeyUsage.digitalSignature : KeyUsage.keyAgreement,
       lookup: 'certificate',
     })
-    results = (results ?? []).filter(removeNotBoxedEntries)
+    results = (results ?? []).filter(
+      removeNotBoxedEntries(options.prePayment ?? false)
+    )
     if (results.length === 1) {
       return results[0].certificate.publicKey
     } else {
       RED.log.warn(
-        `searching for ${normaliseEUI(eui)} certificate found ${results.length}`
+        `searching for ${normaliseEUI(eui)} certificate ${
+          options.prePayment ? '(prepayment)' : ''
+        } found ${results.length} candidates`
       )
     }
   }
   throw new Error(
-    `${privateKey ? 'private' : 'public'} key not found for ${normaliseEUI(
-      eui
-    )} for ${type}`
+    `${options.privateKey ? 'private' : 'public'} key ${
+      options.prePayment ? '(prepayment)' : ''
+    } not found for ${normaliseEUI(eui)} for ${type}`
   )
 }
 
@@ -113,24 +124,24 @@ export function bootstrap(
     }
   }
 
-  this.keyStore = async (eui, type, privateKey) => {
+  this.keyStore = async (eui, type, options) => {
     const local = this.localKeys.find((ke) => {
       return (
         normaliseEUI(ke.eui) === normaliseEUI(eui) &&
         ke.type === type &&
-        !!privateKey === ke.privateKey
+        !!options.privateKey === ke.privateKey
       )
     })
     if (local !== undefined) {
       return local?.key
     }
     if (this.server !== undefined) {
-      return ServerKeyStore(this.server, RED, eui, type, privateKey)
+      return ServerKeyStore(this.server, RED, eui, type, options)
     }
     throw new Error(
-      `${privateKey ? 'private' : 'public'} key not found for ${normaliseEUI(
-        eui
-      )} for ${type}`
+      `${
+        options.privateKey ? 'private' : 'public'
+      } key not found for ${normaliseEUI(eui)} for ${type}`
     )
   }
 }

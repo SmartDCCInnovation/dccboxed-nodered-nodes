@@ -187,8 +187,8 @@ export = function (RED: NodeAPI) {
             const _msg = msg
             parseGbcsMessage(
               sd.body.ResponseMessage.GBCSPayload,
-              (eui, type, privateKey) =>
-                ServerKeyStore(this.server, RED, eui, type, privateKey)
+              (eui, type, options) =>
+                ServerKeyStore(this.server, RED, eui, type, options)
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
@@ -206,8 +206,8 @@ export = function (RED: NodeAPI) {
             const _msg = msg
             parseGbcsMessage(
               sd.body.ResponseMessage.FutureDatedDeviceAlertMessage.GBCSPayload,
-              (eui, type, privateKey) =>
-                ServerKeyStore(this.server, RED, eui, type, privateKey)
+              (eui, type, options) =>
+                ServerKeyStore(this.server, RED, eui, type, options)
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
@@ -223,8 +223,8 @@ export = function (RED: NodeAPI) {
             const _msg = msg
             parseGbcsMessage(
               sd.body.DeviceAlertMessage.GBCSPayload,
-              (eui, type, privateKey) =>
-                ServerKeyStore(this.server, RED, eui, type, privateKey)
+              (eui, type, options) =>
+                ServerKeyStore(this.server, RED, eui, type, options)
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
