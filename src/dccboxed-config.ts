@@ -182,8 +182,8 @@ export = function (RED: NodeAPI) {
           const signedGBCS = await signGroupingHeader(
             res.header.requestId?.originatorId,
             res.body.ResponseMessage.PreCommand.GBCSPayload,
-            (eui, type, privateKey) =>
-              ServerKeyStore(this, RED, eui, type, privateKey)
+            (eui, type, options) =>
+              ServerKeyStore(this, RED, eui, type, options)
           )
           const signedPrecommandDuis: SimplifiedDuisInput = {
             header: {
