@@ -54,7 +54,7 @@
     "@smartdcc/dccboxed-keystore": "^0.1.1",
     "@smartdcc/duis-parser": "^0.2.0",
     "@smartdcc/duis-sign-wrap": "^0.1.0",
-    "@smartdcc/duis-templates": "^0.1.0",
+    "@smartdcc/duis-templates": "^0.2.0",
     "@smartdcc/gbcs-parser": "^0.1.0",
     "@ungap/structured-clone": "^1.0.1",
     "body-parser": "^1.20.0",
