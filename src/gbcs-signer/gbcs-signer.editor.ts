@@ -19,7 +19,11 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { KeyDefinition, Properties } from '../gbcs-signer.properties'
-import { settings } from '../editor-global-settings'
+import {
+  euiValidator,
+  settings,
+  typedInputEUI,
+} from '../editor-global-settings'
 
 import './gbcs-signer.css'
 
@@ -44,7 +48,8 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
               kd.eui.match(/[0-9a-fA-F]{16}/) != null &&
               ['certificate', 'privateKey'].indexOf(kd.type) >= 0 &&
               ['DS', 'KA'].indexOf(kd.usage) >= 0 &&
-              kd.content.length >= 1
+              kd.content.length >= 1 &&
+              kd.prePayment === false
             )
           }) ?? true
         )
@@ -52,7 +57,13 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
     },
     precommand: { value: 'payload.precommand', required: true },
     signedprecommand: { value: 'payload.signedprecommand', required: true },
-    signerEUI: { value: 'payload.signer', required: true },
+    signerEUI: {
+      value: 'payload.signer',
+      required: true,
+      validate: euiValidator(function () {
+        return this.signerEUI_type
+      }),
+    },
     signerEUI_type: { value: 'msg', required: true },
   },
   inputs: 1,
@@ -80,14 +91,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
     })
     $('#node-input-signerEUI').typedInput({
       default: 'msg',
-      types: [
-        'msg',
-        {
-          value: 'eui',
-          label: 'EUI',
-          validate: /^([0-9a-fA-F]{2}([- ](?!$))?){8}$/,
-        },
-      ],
+      types: ['msg', typedInputEUI],
       typeField: $('#node-input-signerEUI_type'),
     })
     $('#node-input-key-container').editableList({
@@ -133,30 +137,17 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
           .val(data?.eui?.replace(/(.{2})(?!$)/g, '$1-') ?? '')
           .appendTo(row2)
 
-        const typeField = $('<select/>', {
-          class: 'g1',
-        })
+        $('<label/>')
+          .attr('for', `node-input-key-type-${index}`)
+          .html('<i class="fa fa-tag"></i> EUI')
+          .appendTo(row3)
+        const typeField = $('<select/>', { class: 'gbcs-signer-single-input' })
           .attr('id', `node-input-key-type-${index}`)
-          .val(data?.type ?? 'certificate')
+          .val(data?.type ?? 'privateKey')
           .appendTo(row3)
-        ;[
-          // remove the certificate option as signer only needs private keys
-          //  { val: 'certificate', text: 'X509 Certificate (PEM)' },
-          { val: 'privateKey', text: 'PKCS8 Private Key (PEM)' },
-        ].forEach(({ val, text }) =>
-          $('<option></option>').val(val).text(text).appendTo(typeField)
-        )
-        const usageField = $('<select/>', {
-          class: 'g1',
-        })
-          .attr('id', `node-input-key-usage-${index}`)
-          .val(data?.usage ?? 'DS')
-          .appendTo(row3)
-        ;[
-          { val: 'DS', text: 'Digital Signature' },
-          { val: 'KA', text: 'Key Agreement' },
-        ].forEach(({ val, text }) =>
-          $('<option></option>').val(val).text(text).appendTo(usageField)
+        ;[{ val: 'privateKey', text: 'DS PKCS8 Private Key (PEM)' }].forEach(
+          ({ val, text }) =>
+            $('<option></option>').val(val).text(text).appendTo(typeField)
         )
 
         $('<label/>')
@@ -198,15 +189,14 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
           eui: (
             itemRoot.find('[id^=node-input-key-eui]').val() as string
           ).replace(/-/g, ''),
-          type: itemRoot.find('[id^=node-input-key-type]').val() as
-            | 'certificate'
-            | 'privateKey',
-          usage: itemRoot.find('[id^=node-input-key-usage]').val() as
-            | 'DS'
-            | 'KA',
+          type: itemRoot
+            .find('[id^=node-input-key-type]')
+            .val() as 'privateKey',
+          usage: 'DS',
           content: itemRoot
             .find('[id^=node-input-key-content]')
             .val() as string,
+          prePayment: false,
         }
         node.keys.push(keyDef)
       })

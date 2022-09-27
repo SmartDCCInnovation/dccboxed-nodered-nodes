@@ -120,6 +120,7 @@ export function bootstrap(
         privateKey: keyDef.type === 'privateKey',
         type: keyDef.usage,
         key,
+        prePayment: keyDef.prePayment,
       })
     }
   }
@@ -129,7 +130,8 @@ export function bootstrap(
       return (
         normaliseEUI(ke.eui) === normaliseEUI(eui) &&
         ke.type === type &&
-        !!options.privateKey === ke.privateKey
+        !!options.privateKey === ke.privateKey &&
+        !!options.prePayment === ke.prePayment
       )
     })
     if (local !== undefined) {

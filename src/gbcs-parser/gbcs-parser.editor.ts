@@ -183,6 +183,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
           content: itemRoot
             .find('[id^=node-input-key-content]')
             .val() as string,
+          prePayment: false,
         }
         node.keys.push(keyDef)
       })

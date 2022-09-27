@@ -23,6 +23,7 @@ export interface KeyDefinition {
   name: string
   eui: string
   content: string
+  prePayment: boolean
 }
 
 export interface Properties {
@@ -40,6 +41,7 @@ export interface LocalKeyEntry {
   type: 'DS' | 'KA'
   privateKey: boolean
   key: KeyObject
+  prePayment: boolean
 }
 
 export interface GbcsNode extends Node {
