@@ -37,8 +37,8 @@ import type { Node, NodeMessage } from 'node-red'
 
 export interface ReceiveNode extends Node {
   server: ConfigNode
-  output: (msg: object, val: unknown) => void
-  gbcsOutput?: (msg: object, val: unknown) => void
+  output: (msg: NodeMessage, val: unknown) => void
+  gbcsOutput?: (msg: NodeMessage, val: unknown) => void
   outputResponsesFilter: RegExp
   outputDeviceAlertsFilter: RegExp
   outputDCCAlertsFilter: RegExp

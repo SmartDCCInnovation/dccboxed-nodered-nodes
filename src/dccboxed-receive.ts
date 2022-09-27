@@ -30,6 +30,7 @@ import { ConfigNode } from './dccboxed-config.properties'
 
 import type { ReceiveNode, Properties } from './dccboxed-receive.properties'
 import { ServerKeyStore } from './gbcs-node.common'
+import { setMessageProperty } from './util'
 
 function buildRegExp(ty: string, value?: string): RegExp {
   switch (ty) {
@@ -54,19 +55,8 @@ export = function (RED: NodeAPI) {
     RED.nodes.createNode(this, config)
     this.server = RED.nodes.getNode(config.server) as ConfigNode
 
-    {
-      const output = (config.output ?? '').trim() || 'payload.response'
-      this.output = (msg, value) => {
-        RED.util.setMessageProperty(msg, output, value, true)
-      }
-    }
-
-    if (config.decodeGbcs) {
-      const gbcsOutput = (config.gbcsOutput ?? '').trim() || 'payload.gbcs'
-      this.gbcsOutput = (msg, value) => {
-        RED.util.setMessageProperty(msg, gbcsOutput, value, true)
-      }
-    }
+    this.output = setMessageProperty(RED, config.output, 'payload.response')
+    this.gbcsOutput = setMessageProperty(RED, config.gbcsOutput, 'payload.gbcs')
 
     this.outputResponsesFilter = buildRegExp(
       config.outputResponsesFilterType,

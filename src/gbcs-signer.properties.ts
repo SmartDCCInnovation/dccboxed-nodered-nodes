@@ -18,6 +18,7 @@
  */
 
 import { EUI } from '@smartdcc/dccboxed-keystore'
+import type { NodeMessage } from 'node-red'
 import {
   Properties as GBCSNodeProperties,
   GbcsNode,
@@ -32,7 +33,7 @@ export interface Properties extends GBCSNodeProperties {
 }
 
 export interface GbcsSignerNode extends GbcsNode {
-  precommand: (msg: object) => unknown
-  signedprecommand: (msg: object, value: unknown) => void
+  precommand: (msg: NodeMessage) => unknown
+  signedprecommand: (msg: NodeMessage, value: unknown) => void
   signerEUI: string | EUI
 }
