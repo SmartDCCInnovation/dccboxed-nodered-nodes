@@ -24,10 +24,10 @@ export interface Properties {
   input?: string
 }
 
-import type { Node as RedNode } from 'node-red'
+import type { Node as RedNode, NodeMessage } from 'node-red'
 
 export interface Node extends RedNode {
-  output: (msg: object, signedXml: string) => void
-  input: (msg: object) => unknown
+  output: (msg: NodeMessage, signedXml: string) => void
+  input: (msg: NodeMessage) => unknown
   preserveCounter: boolean
 }

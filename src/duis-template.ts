@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
+import type { NodeDef, NodeAPI } from 'node-red'
 
 import type {
   Node,
@@ -29,6 +29,7 @@ import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 import { loadTemplates, search } from '@smartdcc/duis-templates'
 
 import structuredClone from '@ungap/structured-clone'
+import { setMessageProperty } from './util'
 
 export = function (RED: NodeAPI) {
   /* asynchronously load the templates on startup */
@@ -53,16 +54,7 @@ export = function (RED: NodeAPI) {
   function DuisTemplate(this: Node, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
     this.minimal = config.minimal
-    {
-      const output = (config.output ?? '').trim() || 'payload.request'
-      this.output = (msg: NodeMessage, value) => {
-        RED.util.setMessageProperty(msg, output, value, true)
-        if (typeof RED.util.getMessageProperty(msg, output) !== 'object') {
-          msg.payload = {}
-          RED.util.setMessageProperty(msg, output, value, true)
-        }
-      }
-    }
+    this.output = setMessageProperty(RED, config.output, 'payload.request')
     this.template = config.template
     this.originatorEUI = (msg) => {
       let eui: string

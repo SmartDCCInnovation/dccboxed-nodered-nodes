@@ -23,9 +23,9 @@ export interface Properties {
   output: string
 }
 
-import type { Node as RedNode } from 'node-red'
+import type { Node as RedNode, NodeMessage } from 'node-red'
 
 export interface Node extends RedNode {
-  input: (msg: object) => unknown
-  output: (msg: object, value: unknown) => void
+  input: (msg: NodeMessage) => unknown
+  output: (msg: NodeMessage, value: unknown) => void
 }

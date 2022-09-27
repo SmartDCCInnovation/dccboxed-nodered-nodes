@@ -21,21 +21,21 @@ import { NodeAPI, NodeMessage } from 'node-red'
 
 export function setMessageProperty(
   RED: NodeAPI,
-  path: string,
+  path: string | undefined,
   defaultPath: string
 ): (msg: NodeMessage, value: unknown) => void {
-  path = (path ?? '').trim() || defaultPath
+  const _path = (path ?? '').trim() || defaultPath
   return (msg, value) => {
-    RED.util.setMessageProperty(msg, path, value, true)
+    RED.util.setMessageProperty(msg, _path, value, true)
     let ty = 'undefined'
     try {
-      ty = typeof RED.util.getMessageProperty(msg, path)
+      ty = typeof RED.util.getMessageProperty(msg, _path)
     } catch {
       /* empty */
     }
     if (ty === 'undefined') {
       msg.payload = {}
-      RED.util.setMessageProperty(msg, path, value, true)
+      RED.util.setMessageProperty(msg, _path, value, true)
     }
   }
 }

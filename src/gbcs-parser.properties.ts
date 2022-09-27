@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { NodeMessage } from 'node-red'
 import {
   Properties as GBCSNodeProperties,
   GbcsNode,
@@ -29,6 +30,6 @@ export interface Properties extends GBCSNodeProperties {
 }
 
 export interface GbcsParserNode extends GbcsNode {
-  input: (msg: object) => unknown
-  output: (msg: object, value: unknown) => void
+  input: (msg: NodeMessage) => unknown
+  output: (msg: NodeMessage, value: unknown) => void
 }

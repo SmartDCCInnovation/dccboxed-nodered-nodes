@@ -26,6 +26,7 @@ import {
 } from '@smartdcc/duis-parser'
 
 import type { Node, Properties } from './duis-construct.properties'
+import { setMessageProperty } from './util'
 
 export = function (RED: NodeAPI) {
   function DuisConstruct(this: Node, config: Properties & NodeDef) {
@@ -34,12 +35,7 @@ export = function (RED: NodeAPI) {
       const input = (config.input ?? '').trim() || 'payload.request'
       this.input = (msg) => RED.util.getMessageProperty(msg, input)
     }
-    {
-      const output = (config.output ?? '').trim() || 'payload.request'
-      this.output = (msg, value) => {
-        RED.util.setMessageProperty(msg, output, value, true)
-      }
-    }
+    this.output = setMessageProperty(RED, config.output, 'payload.request')
     this.on('input', (msg, send, done) => {
       const input = this.input(msg)
       if (config.minimal) {

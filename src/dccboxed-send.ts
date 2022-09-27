@@ -27,6 +27,7 @@ import {
   isCommandVariant,
   isSimplifiedDuisInputRequest,
 } from '@smartdcc/duis-parser'
+import { setMessageProperty } from './util'
 
 export = function (RED: NodeAPI) {
   function DCCBoxedSend(this: Node, config: Properties & NodeDef) {
@@ -36,12 +37,7 @@ export = function (RED: NodeAPI) {
       const input = (config.input ?? '').trim() || 'payload.request'
       this.input = (msg) => RED.util.getMessageProperty(msg, input)
     }
-    {
-      const output = (config.output ?? '').trim() || 'payload.response'
-      this.output = (msg, value) => {
-        RED.util.setMessageProperty(msg, output, value, true)
-      }
-    }
+    this.output = setMessageProperty(RED, config.output, 'payload.response')
     let timerId: NodeJS.Timeout | undefined = undefined
     const setStatus: (status: NodeStatus) => void = (status) => {
       if (timerId !== undefined) {

@@ -22,6 +22,7 @@ import type { NodeDef, NodeAPI } from 'node-red'
 
 import type { GbcsParserNode, Properties } from './gbcs-parser.properties'
 import { bootstrap } from './gbcs-node.common'
+import { setMessageProperty } from './util'
 
 export = function (RED: NodeAPI) {
   function GbcsParser(this: GbcsParserNode, config: Properties & NodeDef) {
@@ -29,17 +30,12 @@ export = function (RED: NodeAPI) {
     bootstrap.bind(this)(config, RED)
 
     {
-      const input = (config.input ?? '').trim() || 'payload.request'
+      const input =
+        (config.input ?? '').trim() ||
+        'payload.response.body.ResponseMessage.GBCSPayload'
       this.input = (msg) => RED.util.getMessageProperty(msg, input)
     }
-    {
-      const output =
-        (config.output ?? '').trim() ||
-        'payload.response.body.ResponseMessage.GBCSPayload'
-      this.output = (msg, value) => {
-        RED.util.setMessageProperty(msg, output, value, true)
-      }
-    }
+    this.output = setMessageProperty(RED, config.output, 'payload.gbcs')
 
     this.on('input', (msg, send, done) => {
       const maybePayload = this.input(msg)

@@ -21,7 +21,7 @@ import type {
   CommandVariant,
   ServiceReferenceVariant,
 } from '@smartdcc/duis-parser'
-import type { Node as RedNode } from 'node-red'
+import type { Node as RedNode, NodeMessage } from 'node-red'
 import type Fuse from 'fuse.js'
 
 export interface Properties {
@@ -40,9 +40,9 @@ export interface Properties {
 export interface Node extends RedNode {
   template: string
   minimal: boolean
-  output: (msg: object, value: unknown) => void
-  originatorEUI: (msg: object) => string | undefined
-  targetEUI: (msg: object) => string | undefined
+  output: (msg: NodeMessage, value: unknown) => void
+  originatorEUI: (msg: NodeMessage) => string | undefined
+  targetEUI: (msg: NodeMessage) => string | undefined
 }
 
 export interface TemplateDTO {

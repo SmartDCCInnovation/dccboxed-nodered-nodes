@@ -23,6 +23,7 @@ import type { NodeDef, NodeAPI } from 'node-red'
 import type { GbcsSignerNode, Properties } from './gbcs-signer.properties'
 import { bootstrap } from './gbcs-node.common'
 import { EUI } from '@smartdcc/dccboxed-keystore'
+import { setMessageProperty } from './util'
 
 export = function (RED: NodeAPI) {
   function GbcsSigner(this: GbcsSignerNode, config: Properties & NodeDef) {
@@ -33,13 +34,11 @@ export = function (RED: NodeAPI) {
         (config.precommand ?? '').trim() || 'payload.precommand'
       this.precommand = (msg) => RED.util.getMessageProperty(msg, precommand)
     }
-    {
-      const signedprecommand =
-        (config.signedprecommand ?? '').trim() || 'payload.signedprecommand'
-      this.signedprecommand = (msg, value) => {
-        RED.util.setMessageProperty(msg, signedprecommand, value, true)
-      }
-    }
+    this.signedprecommand = setMessageProperty(
+      RED,
+      config.signedprecommand,
+      'payload.signedprecommand'
+    )
     this.signerEUI =
       config.signerEUI_type === 'msg'
         ? config.signerEUI
