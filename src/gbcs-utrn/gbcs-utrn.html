@@ -1,0 +1,98 @@
+<!--
+ Created on Tue Sep 20 2022
+
+ Copyright (c) 2022 Smart DCC Limited
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<script type="text/html" data-template-name="gbcs-utrn">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-globe"></i> Server</label>
+    <input type="text" id="node-input-server" />
+  </div>
+
+  <div class="form-row form-tips">
+    Its recommended to configure the <i>DCC&nbsp;Boxed</i> server so the UTRN
+    generator will automatically detect the standard remote party prepayment
+    private keys and device certificates. Alternatively, it is possible to
+    manually configure the public device certificates and private prepayment
+    keys below. If both server and keys are specified, then the specified key
+    will take precedence.
+  </div>
+
+  <div class="form-row" style="margin-bottom:0;">
+    <label><i class="fa fa-list"></i> <span>Keys</span></label>
+  </div>
+  <div class="form-row">
+    <ol id="node-input-key-container" class="key-container"></ol>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-outputUtrn"
+      ><i class="fa fa-ellipsis-h"></i> UTRN</label
+    >
+    <input id="node-input-outputUtrn" type="text" style="width: 70%" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-outputCounter"
+      ><i class="fa fa-ellipsis-h"></i> Counter (out)</label
+    >
+    <input id="node-input-outputCounter" type="text" style="width: 70%" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-signerEUI"><i class="fa fa-user"></i> Signer</label>
+    <input id="node-input-signerEUI" type="text" style="width: 70%" />
+    <input id="node-input-signerEUI_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-deviceEUI"
+      ><i class="fa fa-microchip"></i> Device</label
+    >
+    <input id="node-input-deviceEUI" type="text" style="width: 70%" />
+    <input id="node-input-deviceEUI_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-counter"
+      ><i class="fa fa-sort-numeric-asc"></i> Counter (in)</label
+    >
+    <input id="node-input-counter" type="text" style="width: 70%" />
+    <input id="node-input-counter_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-value"><i class="fa fa-money"></i> PTUT Value</label>
+    <input id="node-input-value" type="text" style="width: 70%" />
+    <input id="node-input-value_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-class"><i class="fa fa-money"></i> PTUT Class</label>
+    <input id="node-input-class" type="text" style="width: 70%" />
+    <input id="node-input-class_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="gbsc-utrn">
+  <p>Generate UTRN for a GBCS device.</p>
+</script>

@@ -52,10 +52,10 @@
   },
   "dependencies": {
     "@smartdcc/dccboxed-keystore": "^0.1.1",
-    "@smartdcc/duis-parser": "^0.2.0",
+    "@smartdcc/duis-parser": "^0.3.0",
     "@smartdcc/duis-sign-wrap": "^0.1.0",
-    "@smartdcc/duis-templates": "^0.1.0",
-    "@smartdcc/gbcs-parser": "^0.1.0",
+    "@smartdcc/duis-templates": "^0.2.0",
+    "@smartdcc/gbcs-parser": "^0.2.0",
     "@ungap/structured-clone": "^1.0.1",
     "body-parser": "^1.20.0",
     "content-type": "^1.0.4",
@@ -71,7 +71,8 @@
       "dccboxed-send": "dist/dccboxed-send.js",
       "dccboxed-receive": "dist/dccboxed-receive.js",
       "gbcs-parser": "dist/gbcs-parser.js",
-      "gbcs-signer": "dist/gbcs-signer.js"
+      "gbcs-signer": "dist/gbcs-signer.js",
+      "gbcs-utrn": "dist/gbcs-utrn.js"
     }
   },
   "files": [
