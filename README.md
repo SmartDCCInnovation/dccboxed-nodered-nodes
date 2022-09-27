@@ -19,6 +19,7 @@ The functionality exposed includes:
   * Send the [DUIS][duis] request to a DCC Boxed (*critical*, *non-critical*,
     *device* and *non-device* supported).
   * Receive a [DUIS][duis] response (both synchronous and asynchronously)
+  * Generate and submit UTRN tokens.
 
 These three functions greatly reduce the complexity needed to interface with
 DCC&nbsp;Boxed as they hide the cryptographic operations and different request
