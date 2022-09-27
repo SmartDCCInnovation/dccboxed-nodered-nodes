@@ -17,10 +17,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { EditorWidgetTypedInputTypeDefinition } from 'node-red'
+
 /**
  * default values to be used for nodes in editor
  */
 export const settings = {
   color: '#f0b3ff',
   category: 'smartdcc',
+}
+
+/**
+ * defines a EUI with/without hyphens and spaces
+ */
+const euiRegex = /^([0-9a-fA-F]{2}([- ](?!$))?){8}$/
+
+/**
+ * Used in a node-red validator for a typedInput that expects a EUI
+ *
+ * @param selector looks up the type of a typeInput
+ * @returns
+ */
+export function euiValidator<T>(selector: (this: T) => true | 'msg' | 'eui') {
+  return function (this: T, val: string): boolean {
+    switch (selector.call(this)) {
+      case true:
+        return true
+      case 'msg':
+        return val.length > 0
+      case 'eui':
+        return val.match(euiRegex) !== null
+    }
+  }
+}
+
+/**
+ * passed into a typedInput to add an eui as an option
+ */
+export const typedInputEUI: EditorWidgetTypedInputTypeDefinition = {
+  value: 'eui',
+  label: 'EUI',
+  validate: euiRegex,
 }

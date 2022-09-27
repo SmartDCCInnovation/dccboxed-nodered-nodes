@@ -27,14 +27,6 @@
   margin-bottom: 0;
 }
 
-.g1 {
-  flex-grow: 1;
-}
-
-.g2 {
-  flex-grow: 2;
-}
-
 .gbcs-signer-single-input {
   flex-grow: 1;
 }
