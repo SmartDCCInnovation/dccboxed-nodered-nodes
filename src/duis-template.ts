@@ -137,6 +137,7 @@ export = function (RED: NodeAPI) {
             if (targetEUI && sd.header.type === 'request') {
               sd.header.requestId.targetId = targetEUI
             }
+            sd.header.requestId.counter = BigInt(0)
             this.output(msg, sd)
           } else {
             this.output(msg, structuredClone(template.normal))

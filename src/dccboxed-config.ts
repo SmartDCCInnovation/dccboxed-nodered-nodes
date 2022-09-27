@@ -170,7 +170,12 @@ export = function (RED: NodeAPI) {
     }
 
     this.request = async (status, endpoint, req) => {
-      const res = await asyncWorkerSend(status, req, endpoint, false)
+      const res = await asyncWorkerSend(
+        status,
+        req,
+        endpoint,
+        req.header.requestId.counter !== BigInt(0)
+      )
       if (
         endpoint === 'Transform Service' &&
         res.header.responseCode === 'I0'

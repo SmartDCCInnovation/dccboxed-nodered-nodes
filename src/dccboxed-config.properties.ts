@@ -28,7 +28,7 @@ export interface Properties {
 
 import type {
   RequestId,
-  SimplifiedDuisInput,
+  SimplifiedDuisInputRequest,
   SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
 import { EventEmitter } from 'node:events'
@@ -65,7 +65,7 @@ export interface ConfigNode extends Node {
   request: (
     status: (status: string) => void | Promise<void>,
     endpoint: DspEndpoint,
-    duis: SimplifiedDuisInput
+    duis: SimplifiedDuisInputRequest
   ) => Promise<SimplifiedDuisOutputResponse>
   logger: (msg: string) => void | Promise<void>
   logfile?: FileHandle

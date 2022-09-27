@@ -27,37 +27,16 @@ import type {
   TemplateDTO,
   TemplateLookupDTO,
 } from '../duis-template.properties'
-import { settings } from '../editor-global-settings'
+import {
+  euiValidator,
+  settings,
+  typedInputEUI,
+} from '../editor-global-settings'
 
 import './duis-template.css'
 
 declare const RED: EditorRED
 declare const $: JQueryStatic
-
-const euiRegex = /^([0-9a-fA-F]{2}([- ](?!$))?){8}$/
-function euiValidator(
-  selector: (
-    this: EditorNodeInstance<Properties & EditorNodeProperties>
-  ) => 'default' | 'msg' | 'eui'
-) {
-  return function (
-    this: EditorNodeInstance<Properties & EditorNodeProperties>,
-    val: string
-  ): boolean {
-    if (!this.minimal) {
-      return true
-    }
-    switch (selector.bind(this)()) {
-      case 'default':
-        return true
-      case 'msg':
-        return val.length > 0
-      case 'eui':
-        return val.match(euiRegex) !== null
-    }
-    return false
-  }
-}
 
 function renderAttribute(template: TemplateDTO, attribute: string): JQuery {
   const a = attribute
@@ -166,6 +145,9 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
     originatorEUI: {
       value: undefined,
       validate: euiValidator(function () {
+        if (!this.minimal || this.originatorEUI_type === 'default') {
+          return true
+        }
         return this.originatorEUI_type
       }),
     },
@@ -173,6 +155,9 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
     targetEUI: {
       value: undefined,
       validate: euiValidator(function () {
+        if (!this.minimal || this.targetEUI_type === 'default') {
+          return true
+        }
         return this.targetEUI_type
       }),
     },
@@ -251,11 +236,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
         default: 'default',
         types: [
           'msg',
-          {
-            value: 'eui',
-            label: 'EUI',
-            validate: euiRegex,
-          },
+          typedInputEUI,
           {
             value: 'default',
             label: 'N/A',
