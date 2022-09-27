@@ -23,9 +23,9 @@ import { ConfigNode } from './dccboxed-config.properties'
 import type { Node, Properties } from './dccboxed-send.properties'
 
 import {
-  isSimplifiedDuisInput,
   lookupCV,
   isCommandVariant,
+  isSimplifiedDuisInputRequest,
 } from '@smartdcc/duis-parser'
 
 export = function (RED: NodeAPI) {
@@ -55,25 +55,16 @@ export = function (RED: NodeAPI) {
     }
     this.on('input', (msg, send, done) => {
       const req = this.input(msg)
-      if (!isSimplifiedDuisInput(req)) {
+      if (!isSimplifiedDuisInputRequest(req)) {
         setStatus({
           fill: 'yellow',
           shape: 'dot',
           text: 'bad input',
         })
-        done(new Error('input not a simplified duis structure'))
+        done(new Error('input not a simplified duis request structure'))
         return
       }
 
-      if (req.header.type !== 'request') {
-        setStatus({
-          fill: 'yellow',
-          shape: 'dot',
-          text: 'bad input',
-        })
-        done(new Error('tried to send something that is not a duis request'))
-        return
-      }
       const cv = isCommandVariant(req.header.commandVariant)
         ? req.header.commandVariant
         : lookupCV(req.header.commandVariant)
