@@ -242,8 +242,13 @@ export = function (RED: NodeAPI) {
             )
           })
           .catch((e) => {
-            RED.log.debug(`request failed duis validation`)
-            this.events.emit('error', e)
+            RED.log.warn('async response failed duis validation')
+            try {
+              /* if no listeners, error emitter throws error */
+              this.events.emit('error', e)
+            } catch {
+              RED.log.warn(e)
+            }
             res.status(400)
             res.send()
           })

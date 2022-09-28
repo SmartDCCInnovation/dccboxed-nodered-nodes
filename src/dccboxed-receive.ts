@@ -245,6 +245,8 @@ export = function (RED: NodeAPI) {
     }
 
     this.server.events.on('duis', NewDuis)
+    this.server.events.on('error', (e) => this.warn(e))
+
     this.on('close', () => {
       this.server.events.removeListener('duis', NewDuis)
     })
