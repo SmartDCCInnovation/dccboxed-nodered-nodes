@@ -43,9 +43,7 @@ export = function (RED: NodeAPI) {
       if (config.signerEUI_type === 'msg') {
         const signerEUI =
           (config.signerEUI ?? '').trim() || 'payload.originator'
-        this.signerEUI = (msg) => {
-          RED.util.getMessageProperty(msg, signerEUI)
-        }
+        this.signerEUI = (msg) => RED.util.getMessageProperty(msg, signerEUI)
       } else {
         const eui = new EUI(config.signerEUI)
         this.signerEUI = () => eui.toString()
@@ -55,9 +53,7 @@ export = function (RED: NodeAPI) {
     {
       if (config.deviceEUI_type === 'msg') {
         const deviceEUI = (config.deviceEUI ?? '').trim() || 'payload.target'
-        this.deviceEUI = (msg) => {
-          RED.util.getMessageProperty(msg, deviceEUI)
-        }
+        this.deviceEUI = (msg) => RED.util.getMessageProperty(msg, deviceEUI)
       } else {
         const eui = new EUI(config.deviceEUI)
         this.deviceEUI = () => eui.toString()
@@ -95,10 +91,8 @@ export = function (RED: NodeAPI) {
 
     {
       if (config.value_type === 'msg') {
-        this.value = (msg) => {
-          const value = (config.value ?? '').trim() || 'payload.value'
-          RED.util.getMessageProperty(msg, value)
-        }
+        const value = (config.value ?? '').trim() || 'payload.value'
+        this.value = (msg) => RED.util.getMessageProperty(msg, value)
       } else {
         const value = Number(config.value)
         if (
@@ -117,10 +111,8 @@ export = function (RED: NodeAPI) {
 
     {
       if (config.class_type === 'msg') {
-        this.class = (msg) => {
-          const _class = (config.class ?? '').trim() || 'payload.class'
-          RED.util.getMessageProperty(msg, _class)
-        }
+        const _class = (config.class ?? '').trim() || 'payload.class'
+        this.class = (msg) => RED.util.getMessageProperty(msg, _class)
       } else {
         const _class = config.class
         if (_class !== 'pounds' && _class !== 'pennies') {
