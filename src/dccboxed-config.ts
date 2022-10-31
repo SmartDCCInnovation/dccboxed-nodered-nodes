@@ -52,10 +52,17 @@ const endpoints: Record<DspEndpoint, string> = {
 }
 
 export = function (RED: NodeAPI) {
+  const usedEndpoints: string[] = []
+
   function ConfigConstruct(this: ConfigNode, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
     this.config = config
     this.events = new EventEmitter()
+
+    if (usedEndpoints.indexOf(config.responseEndpoint) !== -1) {
+      this.error('duis response endpoint is not unique')
+    }
+    usedEndpoints.push(config.responseEndpoint)
 
     BoxedKeyStore.new(
       config.host,
@@ -256,6 +263,7 @@ export = function (RED: NodeAPI) {
     )
 
     this.on('close', () => {
+      usedEndpoints.length = 0
       this.events.removeAllListeners()
       ;(<unknown[]>RED.httpNode._router.stack)?.forEach((layer, i, layers) => {
         if (typeof layer === 'object' && layer !== null && 'route' in layer) {
