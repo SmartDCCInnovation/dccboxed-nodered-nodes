@@ -22,6 +22,26 @@ import type { Properties } from '../dccboxed-config.properties'
 
 declare const RED: EditorRED
 
+function isConfigNode(
+  o: Object
+): o is Properties & { type: 'dccboxed-config'; id: string } {
+  const x = <Properties & { type: 'dccboxed-config'; id: string }>o
+  return (
+    typeof o === 'object' &&
+    o !== null &&
+    x.type === 'dccboxed-config' &&
+    typeof x.id === 'string' &&
+    typeof x.host === 'string' &&
+    (typeof x.localKeyStore === 'string' ||
+      typeof x.localKeyStore === 'undefined') &&
+    (typeof x.logger === 'string' || typeof x.logger === 'undefined') &&
+    typeof x.loggerType === 'string' &&
+    typeof x.port === 'string' &&
+    RED.validators.number()(x.port) &&
+    typeof x.responseEndpoint === 'string'
+  )
+}
+
 RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
   category: 'config',
   defaults: {
@@ -36,7 +56,19 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
     responseEndpoint: {
       value: '/smartdcc/duis',
       required: true,
-      validate: RED.validators.regex(/^\/smartdcc\/[a-zA-Z0-9]+/),
+      validate(val) {
+        if (RED.validators.regex(/^\/smartdcc\/[a-zA-Z0-9]+/)(val)) {
+          let unique = true
+          RED.nodes.eachConfig((conf) => {
+            if (isConfigNode(conf) && this.id !== conf.id) {
+              unique = unique && conf.responseEndpoint !== val
+            }
+            return true
+          })
+          return unique
+        }
+        return false
+      },
     },
     localKeyStore: {
       value: undefined,
