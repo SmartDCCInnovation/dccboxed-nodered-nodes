@@ -37,8 +37,10 @@ import type { Node, NodeMessage } from 'node-red'
 import type { FileHandle } from 'node:fs/promises'
 
 export interface MessageStore {
-  store(reqid: RequestId | undefined, msg: NodeMessage): void
-  retrieve(reqid: RequestId | undefined): NodeMessage | undefined
+  store(reqid: RequestId<number | bigint> | undefined, msg: NodeMessage): void
+  retrieve(
+    reqid: RequestId<number | bigint> | undefined
+  ): NodeMessage | undefined
 }
 
 interface DuisEmitter extends EventEmitter {
