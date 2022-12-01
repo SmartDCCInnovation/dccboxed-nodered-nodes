@@ -181,7 +181,8 @@ export = function (RED: NodeAPI) {
         status,
         req,
         endpoint,
-        req.header.requestId.counter !== BigInt(0)
+        req.header.requestId.counter !== 0 &&
+          req.header.requestId.counter !== BigInt(0)
       )
       if (
         endpoint === 'Transform Service' &&
