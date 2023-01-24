@@ -274,7 +274,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
                 url: 'smartdcc/duis-template/search',
                 dataType: 'json',
                 data: { q: value },
-                timeout: 100,
+                timeout: 250,
                 success(data: TemplateDTO[]) {
                   if (!Array.isArray(data)) {
                     RED.notify('failed to search templates', {
