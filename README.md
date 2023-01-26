@@ -15,6 +15,18 @@ intention is to provide an easy to use tool set to allow users to interface with
 DCC&nbsp;Boxed without worrying about technical issues such as xml and correctly
 signing commands.
 
+Below shows the context of this Node-RED project and demonstrates a typical
+interaction of sending of a command along with receiving its response. Notice,
+the two optional blocks, these allow for sending *critical* commands and reading
+*sensitive* (i.e. encrypted) data from end devices with out the user needing to
+be aware of additional processing requirements. An example of reading sensitive
+data is given in the above animation of performing a SRV 4.1.1 to read the
+current energy usage from a meter, also compare the below sequence diagram with
+the above animation to understand why two responses are obtained (the *I99* and
+later the *I0*).
+
+![sequence](images/nodered.svg)
+
 The functionality exposed includes:
 
   * A library of [DUIS][duis] templates, i.e. commands (taken from RTDS)
