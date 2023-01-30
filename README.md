@@ -40,6 +40,18 @@ DCC&nbsp;Boxed as they hide the cryptographic operations and different request
 processing strategies. Thus, allowing the user to focus on the application
 layer, e.g. configuring devices or automating business processes.
 
+## Known Limitations
+
+* When a UTRN token is generated, only the least significant 10 bits (of 32
+  bits) counter is encoded into the UTRN. Thus, when using this package to
+  generate UTRN's and the user relies on a EPOCH based counter its possible that
+  the UTRN, if entered manually using the buttons on a smart meter will be
+  rejected. This is due to the algorithm used to guess the remaining 22 bits of
+  the counter; all 32 bits are needed for validation of the UTRN. This is not an
+  issue when the UTRN is programmatically sent to the device with service request
+  2.2 (Top Up Device) because the whole counter is transmitted along with the
+  UTRN.
+
 ## Usage
 
 Ensure you are using Node 16x or later. This is because some of the nodes rely
