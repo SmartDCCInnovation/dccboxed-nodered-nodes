@@ -32,7 +32,8 @@ function removeNotBoxedEntries<T extends { role?: number; name?: string }>(
     (name === undefined ||
       (prepayment && name.match(/^Z1-[a-zA-Z0-9]+PP-/) !== null) ||
       (!prepayment &&
-        name.match(/^Z1-[a-zA-Z0-9]+(?!PP)[a-zA-Z0-9]{2}-/) !== null))
+        (name.match(/^Z1-[a-zA-Z0-9]+(?!PP)[a-zA-Z0-9]{2}-/) !== null ||
+          name.startsWith('otherUser-'))))
 }
 
 export async function ServerKeyStore(
