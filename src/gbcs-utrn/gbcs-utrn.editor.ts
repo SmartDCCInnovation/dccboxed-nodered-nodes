@@ -25,7 +25,7 @@ import type {
 import type { KeyDefinition, Properties } from '../gbcs-utrn.properties'
 import {
   euiValidator,
-  settings,
+  settingsHigh as settings,
   typedInputEUI,
 } from '../editor-global-settings'
 

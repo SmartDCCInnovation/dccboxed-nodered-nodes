@@ -19,7 +19,7 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { Properties } from '../dccboxed-send.properties'
-import { settings } from '../editor-global-settings'
+import { settingsHigh as settings } from '../editor-global-settings'
 
 declare const RED: EditorRED
 declare const $: JQueryStatic

@@ -19,7 +19,7 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { Properties } from '../duis-parser.properties'
-import { settings } from '../editor-global-settings'
+import { settingsLow as settings } from '../editor-global-settings'
 
 declare const RED: EditorRED
 declare const $: JQueryStatic
