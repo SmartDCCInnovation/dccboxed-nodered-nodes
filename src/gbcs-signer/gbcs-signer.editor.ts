@@ -21,7 +21,7 @@ import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { KeyDefinition, Properties } from '../gbcs-signer.properties'
 import {
   euiValidator,
-  settings,
+  settingsLow as settings,
   typedInputEUI,
 } from '../editor-global-settings'
 

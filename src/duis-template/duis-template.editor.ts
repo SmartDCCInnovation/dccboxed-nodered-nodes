@@ -29,7 +29,7 @@ import type {
 } from '../duis-template.properties'
 import {
   euiValidator,
-  settings,
+  settingsHigh as settings,
   typedInputEUI,
 } from '../editor-global-settings'
 

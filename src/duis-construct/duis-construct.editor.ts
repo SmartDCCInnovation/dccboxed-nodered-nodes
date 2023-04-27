@@ -19,7 +19,7 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import { Properties } from '../duis-construct.properties'
-import { settings } from '../editor-global-settings'
+import { settingsLow as settings } from '../editor-global-settings'
 
 declare const RED: EditorRED
 

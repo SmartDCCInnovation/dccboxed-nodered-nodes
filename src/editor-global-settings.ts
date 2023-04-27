@@ -22,9 +22,14 @@ import { EditorWidgetTypedInputTypeDefinition } from 'node-red'
 /**
  * default values to be used for nodes in editor
  */
-export const settings = {
+export const settingsHigh = {
   color: '#f0b3ff',
   category: 'smartdcc',
+}
+
+export const settingsLow = {
+  color: '#bbb3ff',
+  category: 'smartdcc lowlevel',
 }
 
 /**

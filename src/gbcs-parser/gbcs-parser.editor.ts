@@ -19,7 +19,7 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { KeyDefinition, Properties } from '../gbcs-parser.properties'
-import { settings } from '../editor-global-settings'
+import { settingsLow as settings } from '../editor-global-settings'
 
 import './gbcs-parser.css'
 
