@@ -51,5 +51,6 @@ export interface ReceiveNode extends Node {
         }
       | { type: 'none' }
   ): void
+  decodeGbcs: boolean
   notifyDeviceAlerts: boolean
 }
