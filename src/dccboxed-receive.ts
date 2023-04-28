@@ -31,6 +31,7 @@ import { ConfigNode } from './dccboxed-config.properties'
 import type { ReceiveNode, Properties } from './dccboxed-receive.properties'
 import { ServerKeyStore } from './gbcs-node.common'
 import { setMessageProperty } from './util'
+import { getAlertCodeName } from '@smartdcc/gbcs-parser/dist/util'
 
 function buildRegExp(ty: string, value?: string): RegExp {
   switch (ty) {
@@ -54,6 +55,7 @@ export = function (RED: NodeAPI) {
   function DCCBoxedReceive(this: ReceiveNode, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
     this.server = RED.nodes.getNode(config.server) as ConfigNode
+    this.notifyDeviceAlerts = Boolean(config.notifyDeviceAlerts)
 
     this.output = setMessageProperty(RED, config.output, 'payload.response')
     this.gbcsOutput = setMessageProperty(RED, config.gbcsOutput, 'payload.gbcs')
@@ -211,6 +213,7 @@ export = function (RED: NodeAPI) {
           if (this.gbcsOutput) {
             const go = this.gbcsOutput
             const _msg = msg
+            const _body = sd.body
             parseGbcsMessage(
               sd.body.DeviceAlertMessage.GBCSPayload,
               (eui, type, options) =>
@@ -219,6 +222,18 @@ export = function (RED: NodeAPI) {
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
                 this.sendOutput({ type: 'devicealert', payload: _msg })
+                const alertDescription = getAlertCodeName(
+                  Number(`0x${_body.DeviceAlertMessage.AlertCode}`)
+                )
+                if (
+                  typeof alertDescription === 'string' &&
+                  this.notifyDeviceAlerts
+                ) {
+                  this.server.publish(this.id, {
+                    kind: 'notification',
+                    message: `Device Alert: ${alertDescription}`,
+                  })
+                }
               })
               .catch((e) => this.error(e))
             setStatus({

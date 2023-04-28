@@ -39,6 +39,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
     outputDeviceAlertsFilterType: { value: 'all', required: false },
     outputDCCAlertsFilterType: { value: 'all', required: false },
     outputs: { value: 4 },
+    notifyDeviceAlerts: { value: false, required: true },
   },
   inputs: 0,
   outputs: 4,

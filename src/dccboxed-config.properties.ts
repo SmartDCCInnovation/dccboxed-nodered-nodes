@@ -71,4 +71,16 @@ export interface ConfigNode extends Node {
   ) => Promise<SimplifiedDuisOutputResponse>
   logger: (msg: string) => void | Promise<void>
   logfile?: FileHandle
+  publish: (nodeId: string, body: WSMessageBody) => void
 }
+
+export interface WSMessageNotification {
+  kind: 'notification'
+  message: string
+  type?: 'compact' | 'success' | 'warning' | 'error'
+  timeout?: number
+}
+
+export type WSMessageBody = WSMessageNotification
+
+export type WSMessageDTO = { id: string; sourceNode: string } & WSMessageBody

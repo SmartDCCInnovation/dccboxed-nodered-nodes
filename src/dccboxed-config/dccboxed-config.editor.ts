@@ -17,10 +17,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { EditorRED, EditorNodeProperties } from 'node-red'
-import type { Properties } from '../dccboxed-config.properties'
+import type {
+  EditorRED,
+  EditorNodeProperties,
+  EditorNodeInstance,
+} from 'node-red'
+import type { Properties, WSMessageDTO } from '../dccboxed-config.properties'
 
 declare const RED: EditorRED
+
+/**
+ * global called from palette node every time a node is added
+ * @param node
+ */
+function addHandler(
+  node: EditorNodeInstance<Properties & EditorNodeProperties>
+): void {
+  if (node.type === 'dccboxed-config') {
+    wsHandlers[node.id] = wsHandler
+    RED.comms.subscribe(`smartdcc/config/${node.id}/#`, wsHandlers[node.id])
+  }
+}
+
+/**
+ * global called from palette node every time a node is removed
+ * @param node
+ */
+function removeHandler(
+  node: EditorNodeInstance<Properties & EditorNodeProperties>
+): void {
+  if (node.type === 'dccboxed-config') {
+    if (node.id in wsHandlers) {
+      RED.comms.unsubscribe(`smartdcc/config/${node.id}/#`, wsHandlers[node.id])
+      delete wsHandlers[node.id]
+    }
+  }
+}
+
+type WSHandlerCallback<T> = (topic: string, data: T) => void
+
+const wsHandlers: { [k: string]: WSHandlerCallback<WSMessageDTO> } = {}
+
+const wsHandler: WSHandlerCallback<WSMessageDTO> = (topic, data) => {
+  const config = RED.nodes.node(data.id) as EditorNodeInstance
+  if (!config) {
+    return
+  }
+  const source = RED.nodes.node(data.sourceNode) as EditorNodeInstance
+  switch (data.kind) {
+    case 'notification':
+      console.log(source)
+      RED.notify(`${source.name ? `${source.name}: ` : ''}${data.message}`, {
+        type: data.type,
+        timeout: data.timeout,
+      })
+      return
+  }
+}
 
 function isConfigNode(
   o: Object
@@ -104,5 +157,13 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
       ],
       typeField: '#node-config-input-loggerType',
     })
+  },
+  onpaletteadd() {
+    RED.events.on('nodes:add', addHandler)
+    RED.events.on('nodes:remove', removeHandler)
+  },
+  onpaletteremove() {
+    RED.events.off('nodes:add', addHandler)
+    RED.events.off('nodes:remove', removeHandler)
   },
 })

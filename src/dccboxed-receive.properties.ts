@@ -31,6 +31,7 @@ export interface Properties {
   outputDeviceAlertsFilterType: string
   outputDCCAlertsFilterType: string
   outputs: number
+  notifyDeviceAlerts: boolean
 }
 
 import type { Node, NodeMessage } from 'node-red'
@@ -50,4 +51,5 @@ export interface ReceiveNode extends Node {
         }
       | { type: 'none' }
   ): void
+  notifyDeviceAlerts: boolean
 }
