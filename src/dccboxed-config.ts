@@ -24,6 +24,7 @@ import type {
   DspEndpoint,
   MessageStore,
   Properties,
+  WSMessageDTO,
 } from './dccboxed-config.properties'
 
 import * as bodyParser from 'body-parser'
@@ -285,6 +286,15 @@ export = function (RED: NodeAPI) {
         this.logfile.close()
       }
     })
+
+    this.publish = (nodeId, body) => {
+      const payload: WSMessageDTO = { id: this.id, sourceNode: nodeId, ...body }
+      RED.comms.publish(
+        `smartdcc/config/${this.id}/${body.kind}`,
+        payload,
+        false
+      )
+    }
   }
   RED.nodes.registerType('dccboxed-config', ConfigConstruct)
 }
