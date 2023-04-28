@@ -56,6 +56,7 @@ export = function (RED: NodeAPI) {
     RED.nodes.createNode(this, config)
     this.server = RED.nodes.getNode(config.server) as ConfigNode
     this.notifyDeviceAlerts = Boolean(config.notifyDeviceAlerts)
+    this.decodeGbcs = Boolean(config.decodeGbcs)
 
     this.output = setMessageProperty(RED, config.output, 'payload.response')
     this.gbcsOutput = setMessageProperty(RED, config.gbcsOutput, 'payload.gbcs')
@@ -173,7 +174,8 @@ export = function (RED: NodeAPI) {
             isSimplifiedDuisResponseBody_ResponseMessage_X(
               'GBCSPayload',
               sd.body
-            )
+            ) &&
+            this.decodeGbcs
           ) {
             const go = this.gbcsOutput
             const _msg = msg
@@ -192,7 +194,8 @@ export = function (RED: NodeAPI) {
             isSimplifiedDuisResponseBody_ResponseMessage_X(
               'FutureDatedDeviceAlertMessage',
               sd.body
-            )
+            ) &&
+            this.decodeGbcs
           ) {
             const go = this.gbcsOutput
             const _msg = msg
@@ -210,7 +213,7 @@ export = function (RED: NodeAPI) {
             this.sendOutput({ type: 'response', payload: msg })
           }
         } else if (isSimplifiedDuisResponseBody_DeviceAlertMessage(sd.body)) {
-          if (this.gbcsOutput) {
+          if (this.gbcsOutput && this.decodeGbcs) {
             const go = this.gbcsOutput
             const _msg = msg
             const _body = sd.body
@@ -222,18 +225,6 @@ export = function (RED: NodeAPI) {
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
                 this.sendOutput({ type: 'devicealert', payload: _msg })
-                const alertDescription = getAlertCodeName(
-                  Number(`0x${_body.DeviceAlertMessage.AlertCode}`)
-                )
-                if (
-                  typeof alertDescription === 'string' &&
-                  this.notifyDeviceAlerts
-                ) {
-                  this.server.publish(this.id, {
-                    kind: 'notification',
-                    message: `Device Alert: ${alertDescription}`,
-                  })
-                }
               })
               .catch((e) => this.error(e))
             setStatus({
@@ -241,17 +232,27 @@ export = function (RED: NodeAPI) {
               shape: 'dot',
               text: `device alert code: ${sd.body.DeviceAlertMessage.AlertCode}`,
             })
+            const alertDescription = getAlertCodeName(
+              Number(`0x${_body.DeviceAlertMessage.AlertCode}`)
+            )
+            if (
+              typeof alertDescription === 'string' &&
+              this.notifyDeviceAlerts
+            ) {
+              this.server.publish(this.id, {
+                kind: 'notification',
+                message: `Device Alert: ${alertDescription}`,
+              })
+            }
           } else {
             this.sendOutput({ type: 'devicealert', payload: msg })
           }
         } else if (isSimplifiedDuisResponseBody_DCCAlertMessage(sd.body)) {
-          if (this.gbcsOutput) {
-            setStatus({
-              fill: 'green',
-              shape: 'dot',
-              text: `dcc alert code: ${sd.body.DCCAlertMessage.DCCAlertCode}`,
-            })
-          }
+          setStatus({
+            fill: 'green',
+            shape: 'dot',
+            text: `dcc alert code: ${sd.body.DCCAlertMessage.DCCAlertCode}`,
+          })
           this.sendOutput({ type: 'dccalert', payload: msg })
         } else {
           this.warn('unknown message received: ' + JSON.stringify(sd))
