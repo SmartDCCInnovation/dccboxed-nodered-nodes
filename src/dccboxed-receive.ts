@@ -158,7 +158,16 @@ export = function (RED: NodeAPI) {
         shape: 'dot',
         text: `result code: ${sd.header.responseCode}`,
       })
-      msg = msg ?? { _msgid: '' }
+      if (msg) {
+        // shallow clone msg object
+        msg = { ...msg }
+        // shallow clone payload object
+        if ('payload' in msg && typeof msg.payload === 'object') {
+          msg.payload = { ...msg.payload }
+        }
+      } else {
+        msg = { _msgid: '' }
+      }
       this.output(msg, sd)
       if (sd.header.responseCode !== 'I0') {
         this.sendOutput({ type: 'error', payload: msg })
