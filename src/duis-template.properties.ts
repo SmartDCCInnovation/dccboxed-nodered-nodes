@@ -20,6 +20,7 @@
 import type {
   CommandVariant,
   ServiceReferenceVariant,
+  XMLData,
 } from '@smartdcc/duis-parser'
 import type { Node as RedNode, NodeMessage } from 'node-red'
 import type Fuse from 'fuse.js'
@@ -27,6 +28,7 @@ import type Fuse from 'fuse.js'
 export interface Properties {
   template: string
   templateValid: 'true' | 'false'
+  templateBody?: string
   minimal: boolean
   output?: string
   enableInject: boolean
@@ -39,6 +41,7 @@ export interface Properties {
 
 export interface Node extends RedNode {
   template: string
+  templateBody?: XMLData
   minimal: boolean
   output: (msg: NodeMessage, value: unknown) => void
   originatorEUI: (msg: NodeMessage) => string | undefined
@@ -56,4 +59,4 @@ export interface TemplateDTO {
   matches: Fuse.FuseResultMatch[]
 }
 
-export type TemplateLookupDTO = Omit<TemplateDTO, 'matches'>
+export type TemplateLookupDTO = Omit<TemplateDTO, 'matches'> & { body: XMLData }

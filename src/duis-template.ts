@@ -56,6 +56,17 @@ export = function (RED: NodeAPI) {
     this.minimal = config.minimal
     this.output = setMessageProperty(RED, config.output, 'payload.request')
     this.template = config.template
+    if (
+      typeof config.templateBody === 'string' &&
+      config.templateBody.trim() !== ''
+    ) {
+      try {
+        this.templateBody = JSON.parse(config.templateBody ?? '')
+      } catch (e) {
+        this.error(e)
+      }
+    }
+
     this.originatorEUI = (msg) => {
       let eui: string
       switch (config.originatorEUI_type) {
@@ -121,6 +132,9 @@ export = function (RED: NodeAPI) {
         .then((template) => {
           if (this.minimal) {
             const sd = structuredClone(template.simplified)
+            if (this.templateBody) {
+              sd.body = structuredClone(this.templateBody)
+            }
             const originatorEUI = this.originatorEUI(msg)
             if (originatorEUI && sd.header.type === 'request') {
               sd.header.requestId.originatorId = originatorEUI
@@ -232,6 +246,7 @@ export = function (RED: NodeAPI) {
               gbcsTitle: template.gbcsTitle,
               gbcsVariant: template.gbcsVariant,
               info: template.info,
+              body: template.simplified.body,
             }
             res.json(item)
           }

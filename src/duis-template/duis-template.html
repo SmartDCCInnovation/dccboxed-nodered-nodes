@@ -113,6 +113,24 @@
     <input id="node-input-targetEUI_type" type="hidden" />
   </div>
 
+  <input type="hidden" id="node-input-templateBody" />
+  <div
+    class="form-row node-text-editor-row duis-template-optional duis-template-relative"
+  >
+    <div
+      style="height:250px; min-height:100px"
+      class="node-text-editor"
+      id="node-input-templateBody-editor"
+    ></div>
+    <div class="duis-template-edited">
+      <i
+        class="fa fa-pencil-square-o"
+        aria-hidden="true"
+        title="Locally modified template."
+      ></i>
+    </div>
+  </div>
+
   <div class="form-row">
     <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name" />
