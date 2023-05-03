@@ -34,6 +34,7 @@ import {
 } from '../editor-global-settings'
 
 import './duis-template.css'
+import { XMLData } from '@smartdcc/duis-parser'
 
 declare const RED: EditorRED
 declare const $: JQueryStatic
@@ -122,7 +123,36 @@ function renderTemplateDTO(template: TemplateDTO): JQuery {
   return root
 }
 
-RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
+/* definitional equality */
+function defEquality(raw: string, data: XMLData): boolean {
+  try {
+    return JSON.stringify(JSON.parse(raw)) === JSON.stringify(data)
+  } catch (e) {
+    return false
+  }
+}
+
+type ENT = Properties &
+  EditorNodeProperties & {
+    editor?: AceAjax.Editor
+    templateBodyOriginal?: XMLData
+  }
+
+function resizeConfigPane(this: EditorNodeInstance<ENT>) {
+  const rows = $('#dialog-form>div:not(.node-text-editor-row)')
+  let height = $('#dialog-form').height() ?? 0
+  for (const row of rows) {
+    height = height - ($(row).outerHeight(true) ?? 0)
+  }
+  const editorRow = $('#dialog-form>div.node-text-editor-row')
+  height -=
+    parseInt(editorRow.css('marginTop')) +
+    parseInt(editorRow.css('marginBottom'))
+  $('.node-text-editor').css('height', height + 'px')
+  this.editor?.resize()
+}
+
+RED.nodes.registerType<ENT>('duis-template', {
   ...settings,
   defaults: {
     name: { value: undefined, required: false },
@@ -162,6 +192,22 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
       }),
     },
     targetEUI_type: { value: 'default', required: true },
+    templateBody: {
+      value: undefined,
+      validate(val) {
+        if (typeof val === 'undefined' || val.trim() === '') {
+          return true
+        }
+        try {
+          return Boolean(JSON.parse(val))
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            return false
+          }
+          throw e
+        }
+      },
+    },
   },
   inputs: 1,
   outputs: 1,
@@ -254,6 +300,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
       }
     })
 
+    let firstLoad = true
     $('#node-input-template')
       .typedInput({
         types: [
@@ -354,6 +401,17 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
                 '#duis-template-card-gbcsName,#duis-template-card-gbcsName-variant'
               ).hide()
             }
+            if (node.editor) {
+              node.templateBodyOriginal = data.body
+              if (
+                !firstLoad ||
+                (firstLoad && node.editor.getValue().trim() === '')
+              ) {
+                node.editor.setValue(JSON.stringify(data.body, null, 2))
+              }
+              firstLoad = false
+              resizeConfigPane.bind(this)()
+            }
           },
           error(e, textStatus) {
             if (textStatus !== 'timeout' && e.status !== 404) {
@@ -373,5 +431,46 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-template', {
     $('input#node-input-templateValid').on('change', function () {
       $('#node-input-template').typedInput('validate')
     })
+
+    if (($('#node-input-templateBody').val() as string).trim() !== '') {
+      $('.duis-template-edited').show()
+    } else {
+      $('.duis-template-edited').hide()
+    }
+    this.editor = RED.editor.createEditor({
+      id: 'node-input-templateBody-editor',
+      mode: 'ace/mode/json',
+      value: ($('#node-input-templateBody').val() as string) ?? '',
+    })
+    this.editor.on('change', () => {
+      if (this.editor && this.templateBodyOriginal) {
+        if (defEquality(this.editor.getValue(), this.templateBodyOriginal)) {
+          $('.duis-template-edited').hide()
+        } else {
+          $('.duis-template-edited').show()
+        }
+      } else {
+        $('.duis-template-edited').hide()
+      }
+    })
   },
+  oneditsave: function () {
+    if (this.editor) {
+      if (
+        defEquality(this.editor.getValue(), this.templateBodyOriginal ?? {}) ||
+        $('#node-input-minimal').is(':not(:checked)')
+      ) {
+        $('#node-input-templateBody').val('')
+      } else {
+        $('#node-input-templateBody').val(this.editor.getValue().trim())
+      }
+    }
+    this.editor?.destroy()
+    delete this.editor
+  },
+  oneditcancel: function () {
+    this.editor?.destroy()
+    delete this.editor
+  },
+  oneditresize: resizeConfigPane,
 })

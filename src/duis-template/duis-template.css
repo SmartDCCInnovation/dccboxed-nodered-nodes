@@ -70,3 +70,13 @@ div[id^='duis-template-card-'] {
 div[id^='duis-template-card-'] > span {
   font-weight: lighter;
 }
+
+.duis-template-relative {
+  position: relative;
+}
+
+.duis-template-edited {
+  position: absolute;
+  right: 1.5em;
+  bottom: 1em;
+}
