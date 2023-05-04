@@ -362,9 +362,14 @@ RED.nodes.registerType<ENT>('duis-template', {
           success(data: TemplateLookupDTO) {
             $('input#node-input-templateValid').val('true').trigger('change')
             $('.duis-template-card-toggle').show()
-            $('#duis-template-card-serviceRequestName>span').text(
-              `${data.serviceReferenceVariant['Service Reference Variant']} - ${data.serviceReferenceVariant['Service Request Name']}`
-            )
+            $('#duis-template-card-serviceRequestName>span')
+              .text(
+                `${data.serviceReferenceVariant['Service Reference Variant']} - ${data.serviceReferenceVariant['Service Request Name']}`
+              )
+              .attr(
+                'title',
+                data.serviceReferenceVariant['Service Request Name']
+              )
             node.deafultName = `${
               data.serviceReferenceVariant['Service Reference Variant']
             }${data.gbcs ? ` - ${data.gbcs}` : ''}`
@@ -382,11 +387,15 @@ RED.nodes.registerType<ENT>('duis-template', {
             $('#duis-template-card-serviceRequestName-nondevice>span').text(
               data.serviceReferenceVariant['Non-Device Request']
             )
-            $('#duis-template-card-serviceRequestName-cv>span').text(
-              `${data.commandVariant.number} - ${data.commandVariant.description}`
-            )
+            $('#duis-template-card-serviceRequestName-cv>span')
+              .text(
+                `${data.commandVariant.number} - ${data.commandVariant.description}`
+              )
+              .attr('title', data.commandVariant.description)
             if (data.gbcsTitle) {
-              $('#duis-template-card-gbcsName>span').text(data.gbcsTitle)
+              $('#duis-template-card-gbcsName>span')
+                .text(data.gbcsTitle)
+                .attr('title', data.gbcsTitle)
               $('#duis-template-card-gbcsName').show()
               if (data.gbcsVariant) {
                 $('#duis-template-card-gbcsName-variant>span').text(
