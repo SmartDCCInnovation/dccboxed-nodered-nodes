@@ -110,9 +110,16 @@ The following shows a minimal setup using these three nodes:
 The `duis-template` node provides access to a catalog of [DUIS
 templates][duis-templates]. The catalog can be searched by keywords or service
 requests. The node is used by dragging it to the canvas and then configuring its
-properties in the usual way.
+properties in the usual way. Below shows the properties pane of the
+`duis-template` node:
 
 ![duis-template basic](images/duis-template-basic.png)
+
+
+  * The *Template* option is used to search for a DUIS template. Below shows an
+    example of searching the catalog:
+
+      ![duis-template search results](images/duis-template-search.png)
 
   * The option to use "*Simplified Template*" is highly recommended (and
     required when using `dccboxed-send` node as described below). Information
@@ -124,9 +131,26 @@ properties in the usual way.
     message, in which case the *Originator*/*Target* can be extracted from the
     input message.
 
-The following shows an example of searching the catalog:
+  * The *Output* option defines where the template will be saved in the output
+    message from the node. In most cases the default value is fine and aligns
+    with the default location expected when using the `dccboxed-send` node.
 
-![duis-template search results](images/duis-template-search.png)
+  * The *Originator* and *Target* allow for configuration of the DUIS header. In
+    most cases, the *Originator* does not need to be changed and the *Target* is
+    the EUI of the end device (or ACB). More information about the meaning of
+    these values can be found in the DUIS specification. For *Target* field, the
+    device EUI can typically be found from the *HAN* page in DCC&nbsp;Boxed.
+
+  * The text box below is used for showing the payload of the DUIS template.
+    This can be edited by the user to change the default values in the chosen
+    template. The following shows an example of a service request selected with
+    the text box populated:
+
+    ![duis-template json editor](images/duis-template-editor.png)
+
+    If the template is edited for a given node, a symbol is shown in bottom
+    right corner of the editor.
+
 
 #### Node `dccboxed-config`
 
