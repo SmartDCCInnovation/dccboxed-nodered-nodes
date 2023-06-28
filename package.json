@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/SmartDCCInnovation/dccboxed-nodered-nodes#readme",
   "devDependencies": {
-    "@tsconfig/node16": "^1.0.3",
+    "@tsconfig/node16": "^16.1.0",
     "@types/content-type": "^1.1.5",
     "@types/jquery-mask-plugin": "^1.14.4",
     "@types/node-red": "^1.2.1",
