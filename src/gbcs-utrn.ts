@@ -31,12 +31,12 @@ export = function (RED: NodeAPI) {
     this.outputUtrn = setMessageProperty(
       RED,
       config.outputUtrn,
-      'payload.utrn.token'
+      'payload.utrn.token',
     )
     this.outputCounter = setMessageProperty(
       RED,
       config.outputCounter,
-      'payload.utrn.counter'
+      'payload.utrn.counter',
     )
 
     {
@@ -102,7 +102,7 @@ export = function (RED: NodeAPI) {
           !Number.isInteger(value)
         ) {
           throw new Error(
-            'utrn value should be integer between 0 and 8191 (inclusive)'
+            'utrn value should be integer between 0 and 8191 (inclusive)',
           )
         }
         this.value = () => value
@@ -158,8 +158,8 @@ export = function (RED: NodeAPI) {
       ) {
         done(
           new Error(
-            'utrn value should be integer between 0 and 8191 (inclusive)'
-          )
+            'utrn value should be integer between 0 and 8191 (inclusive)',
+          ),
         )
         return
       }
@@ -240,6 +240,6 @@ export = function (RED: NodeAPI) {
       } else {
         res.sendStatus(404)
       }
-    }
+    },
   )
 }

@@ -75,13 +75,13 @@ export = function (RED: NodeAPI) {
         case 'msg': {
           const x = RED.util.getMessageProperty(
             msg,
-            config.originatorEUI ?? 'payload.originatorEUI'
+            config.originatorEUI ?? 'payload.originatorEUI',
           )
           if (typeof x === 'string') {
             eui = x
           } else {
             throw new Error(
-              `could not extract originator eui from ${config.originatorEUI}`
+              `could not extract originator eui from ${config.originatorEUI}`,
             )
           }
           break
@@ -103,13 +103,13 @@ export = function (RED: NodeAPI) {
         case 'msg': {
           const x = RED.util.getMessageProperty(
             msg,
-            config.targetEUI ?? 'payload.targetEUI'
+            config.targetEUI ?? 'payload.targetEUI',
           )
           if (typeof x === 'string') {
             eui = x
           } else {
             throw new Error(
-              `could not extract target eui from ${config.targetEUI}`
+              `could not extract target eui from ${config.targetEUI}`,
             )
           }
           break
@@ -127,7 +127,7 @@ export = function (RED: NodeAPI) {
         .then((templates) =>
           templates[this.template]
             ? templates[this.template]
-            : Promise.reject(`template ${this.template} not found`)
+            : Promise.reject(`template ${this.template} not found`),
         )
         .then((template) => {
           if (this.minimal) {
@@ -175,7 +175,7 @@ export = function (RED: NodeAPI) {
       } else {
         res.sendStatus(404)
       }
-    }
+    },
   )
 
   RED.httpAdmin.get(
@@ -215,17 +215,17 @@ export = function (RED: NodeAPI) {
                 matches: (r.matches ?? []).map((match) =>
                   Object.assign({}, match, {
                     key: match.key?.replace(/^0\./, 'tag.').replace(/^1\./, ''),
-                  })
+                  }),
                 ),
               }
-            })
+            }),
           )
         })
         .catch((e) => {
           RED.log.error(e)
           res.sendStatus(500)
         })
-    }
+    },
   )
 
   RED.httpAdmin.get(
@@ -255,6 +255,6 @@ export = function (RED: NodeAPI) {
           RED.log.error(e)
           res.sendStatus(500)
         })
-    }
+    },
   )
 }

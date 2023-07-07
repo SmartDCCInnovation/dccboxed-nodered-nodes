@@ -67,7 +67,9 @@ export = function (RED: NodeAPI) {
 
     BoxedKeyStore.new(
       config.host,
-      (config.localKeyStore?.length ?? 0) > 1 ? config.localKeyStore : undefined
+      (config.localKeyStore?.length ?? 0) > 1
+        ? config.localKeyStore
+        : undefined,
     )
       .then((ks) => {
         this.keyStore = ks
@@ -104,7 +106,7 @@ export = function (RED: NodeAPI) {
       status: (status: string) => void | Promise<void>,
       req: SimplifiedDuisInput,
       endpoint: DspEndpoint,
-      preserveCounter: boolean
+      preserveCounter: boolean,
     ): Promise<SimplifiedDuisOutputResponse> => {
       await status(`${endpoint}: signing duis`)
 
@@ -123,7 +125,7 @@ export = function (RED: NodeAPI) {
           body: signedXml,
           throwHttpErrors: true,
           followRedirect: true,
-        }
+        },
       )
 
       if (
@@ -131,7 +133,7 @@ export = function (RED: NodeAPI) {
         contentType(response.headers['content-type']).type !== 'application/xml'
       ) {
         throw new Error(
-          `incorrect content-type header received, expected application/xml, received: ${response.headers['content-type']}`
+          `incorrect content-type header received, expected application/xml, received: ${response.headers['content-type']}`,
         )
       }
       await status(`${endpoint}: validating`)
@@ -183,7 +185,7 @@ export = function (RED: NodeAPI) {
         req,
         endpoint,
         req.header.requestId.counter !== 0 &&
-          req.header.requestId.counter !== BigInt(0)
+          req.header.requestId.counter !== BigInt(0),
       )
       if (
         endpoint === 'Transform Service' &&
@@ -197,7 +199,7 @@ export = function (RED: NodeAPI) {
             res.header.requestId?.originatorId,
             res.body.ResponseMessage.PreCommand.GBCSPayload,
             (eui, type, options) =>
-              ServerKeyStore(this, RED, eui, type, options)
+              ServerKeyStore(this, RED, eui, type, options),
           )
           const signedPrecommandDuis: SimplifiedDuisInput = {
             header: {
@@ -215,7 +217,7 @@ export = function (RED: NodeAPI) {
             status,
             signedPrecommandDuis,
             'Send Command Service',
-            true
+            true,
           )
         }
         RED.log.error(inspect(res, { depth: 10, colors: true }))
@@ -247,7 +249,7 @@ export = function (RED: NodeAPI) {
             this.events.emit(
               'duis',
               duis,
-              this.messageStore.retrieve(duis.header.requestId)
+              this.messageStore.retrieve(duis.header.requestId),
             )
           })
           .catch((e) => {
@@ -261,7 +263,7 @@ export = function (RED: NodeAPI) {
             res.status(400)
             res.send()
           })
-      }
+      },
     )
 
     this.on('close', () => {
@@ -292,7 +294,7 @@ export = function (RED: NodeAPI) {
       RED.comms.publish(
         `smartdcc/config/${this.id}/${body.kind}`,
         payload,
-        false
+        false,
       )
     }
   }

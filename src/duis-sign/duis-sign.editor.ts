@@ -47,7 +47,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-sign', {
   icon: 'envelope.svg',
   paletteLabel: 'duis - sign & validate',
   label: function (
-    this: EditorNodeInstance<Properties & EditorNodeProperties>
+    this: EditorNodeInstance<Properties & EditorNodeProperties>,
   ) {
     return this.name || `duis-${this.mode}`
   },
@@ -55,7 +55,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-sign', {
     $('#node-input-mode').on('change', function () {
       $('.duis-sign-preserveCounter').css(
         'visibility',
-        $(this).val() === 'sign' ? 'visible' : 'hidden'
+        $(this).val() === 'sign' ? 'visible' : 'hidden',
       )
     })
     $('#node-input-input,#node-input-output').typedInput({

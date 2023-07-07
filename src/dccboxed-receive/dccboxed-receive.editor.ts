@@ -79,9 +79,9 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
         JSON.stringify(
           1 +
             $(
-              'input[type=hidden][id^=node-input-output][id$=FilterType]:not([value=none])'
-            ).length
-        )
+              'input[type=hidden][id^=node-input-output][id$=FilterType]:not([value=none])',
+            ).length,
+        ),
       )
     }
     $('input[type=text][id^=node-input-output][id$=Filter]').each(
@@ -111,7 +111,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-receive', {
           ],
           typeField: `#${el.attr('id')}Type`,
         }).on('change', setOutputs)
-      }
+      },
     )
   },
 })

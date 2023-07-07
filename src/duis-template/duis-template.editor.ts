@@ -58,17 +58,17 @@ function renderAttribute(template: TemplateDTO, attribute: string): JQuery {
     result.append(
       $('<span/>')
         .addClass('duis-template-no-match')
-        .text(a.slice(current, index[0]))
+        .text(a.slice(current, index[0])),
     )
     result.append(
       $('<span/>')
         .addClass('duis-template-match')
-        .text(a.slice(index[0], index[1] + 1))
+        .text(a.slice(index[0], index[1] + 1)),
     )
     current = index[1] + 1
   }
   result.append(
-    $('<span/>').addClass('duis-template-no-match').text(a.slice(current))
+    $('<span/>').addClass('duis-template-no-match').text(a.slice(current)),
   )
   return result
 }
@@ -80,11 +80,11 @@ function renderTemplateDTO(template: TemplateDTO): JQuery {
   row1.append(
     renderAttribute(
       template,
-      'serviceReferenceVariant.Service Reference Variant'
-    )
+      'serviceReferenceVariant.Service Reference Variant',
+    ),
   )
   row1.append(
-    renderAttribute(template, 'serviceReferenceVariant.Service Request Name')
+    renderAttribute(template, 'serviceReferenceVariant.Service Request Name'),
   )
 
   if (template.info) {
@@ -94,8 +94,8 @@ function renderTemplateDTO(template: TemplateDTO): JQuery {
         .append(
           $('<span/>').addClass('duis-template-no-match').text('['),
           renderAttribute(template, 'info'),
-          $('<span/>').addClass('duis-template-no-match').text(']')
-        )
+          $('<span/>').addClass('duis-template-no-match').text(']'),
+        ),
     )
   }
 
@@ -112,8 +112,8 @@ function renderTemplateDTO(template: TemplateDTO): JQuery {
           .append(
             $('<span/>').addClass('duis-template-no-match').text('['),
             renderAttribute(template, 'gbcsVariant'),
-            $('<span/>').addClass('duis-template-no-match').text(']')
-          )
+            $('<span/>').addClass('duis-template-no-match').text(']'),
+          ),
       )
     }
 
@@ -240,21 +240,21 @@ RED.nodes.registerType<ENT>('duis-template', {
               this._('common.notification.error', {
                 message: this._('common.notification.errors.not-deployed'),
               }),
-              'error'
+              'error',
             )
           } else if (jqXHR.status == 500) {
             RED.notify(
               this._('common.notification.error', {
                 message: this._('inject.errors.failed'),
               }),
-              'error'
+              'error',
             )
           } else if (jqXHR.status == 0) {
             RED.notify(
               this._('common.notification.error', {
                 message: this._('common.notification.errors.no-response'),
               }),
-              'error'
+              'error',
             )
           } else {
             RED.notify(
@@ -264,7 +264,7 @@ RED.nodes.registerType<ENT>('duis-template', {
                   message: textStatus,
                 }),
               }),
-              'error'
+              'error',
             )
           }
         },
@@ -314,8 +314,8 @@ RED.nodes.registerType<ENT>('duis-template', {
             autoComplete(
               value: string,
               done: (
-                options: { value: string; label: string | JQuery }[]
-              ) => void
+                options: { value: string; label: string | JQuery }[],
+              ) => void,
             ): void {
               $.ajax({
                 url: 'smartdcc/duis-template/search',
@@ -337,7 +337,7 @@ RED.nodes.registerType<ENT>('duis-template', {
                         value: template.tag,
                         label: renderTemplateDTO(template),
                       }
-                    })
+                    }),
                   )
                 },
                 error(e, textStatus) {
@@ -364,32 +364,32 @@ RED.nodes.registerType<ENT>('duis-template', {
             $('.duis-template-card-toggle').show()
             $('#duis-template-card-serviceRequestName>span')
               .text(
-                `${data.serviceReferenceVariant['Service Reference Variant']} - ${data.serviceReferenceVariant['Service Request Name']}`
+                `${data.serviceReferenceVariant['Service Reference Variant']} - ${data.serviceReferenceVariant['Service Request Name']}`,
               )
               .attr(
                 'title',
-                data.serviceReferenceVariant['Service Request Name']
+                data.serviceReferenceVariant['Service Request Name'],
               )
             node.deafultName = `${
               data.serviceReferenceVariant['Service Reference Variant']
             }${data.gbcs ? ` - ${data.gbcs}` : ''}`
             if (data.info) {
               $('#duis-template-card-serviceRequestName-variant>span').text(
-                data.info.replace(/_/g, ' ').toLocaleLowerCase()
+                data.info.replace(/_/g, ' ').toLocaleLowerCase(),
               )
               $('#duis-template-card-serviceRequestName-variant').show()
             } else {
               $('#duis-template-card-serviceRequestName-variant').hide()
             }
             $('#duis-template-card-serviceRequestName-critical>span').text(
-              data.serviceReferenceVariant.Critical
+              data.serviceReferenceVariant.Critical,
             )
             $('#duis-template-card-serviceRequestName-nondevice>span').text(
-              data.serviceReferenceVariant['Non-Device Request']
+              data.serviceReferenceVariant['Non-Device Request'],
             )
             $('#duis-template-card-serviceRequestName-cv>span')
               .text(
-                `${data.commandVariant.number} - ${data.commandVariant.description}`
+                `${data.commandVariant.number} - ${data.commandVariant.description}`,
               )
               .attr('title', data.commandVariant.description)
             if (data.gbcsTitle) {
@@ -399,7 +399,7 @@ RED.nodes.registerType<ENT>('duis-template', {
               $('#duis-template-card-gbcsName').show()
               if (data.gbcsVariant) {
                 $('#duis-template-card-gbcsName-variant>span').text(
-                  data.gbcsVariant
+                  data.gbcsVariant,
                 )
                 $('#duis-template-card-gbcsName-variant').show()
               } else {
@@ -407,7 +407,7 @@ RED.nodes.registerType<ENT>('duis-template', {
               }
             } else {
               $(
-                '#duis-template-card-gbcsName,#duis-template-card-gbcsName-variant'
+                '#duis-template-card-gbcsName,#duis-template-card-gbcsName-variant',
               ).hide()
             }
             if (node.editor) {
@@ -426,11 +426,11 @@ RED.nodes.registerType<ENT>('duis-template', {
             if (textStatus !== 'timeout' && e.status !== 404) {
               console.error(e)
               $('#duis-template-card-serviceRequestName>span').text(
-                `failed to load - ${e.statusText}`
+                `failed to load - ${e.statusText}`,
               )
             } else {
               $('#duis-template-card-serviceRequestName>span').text(
-                e.status === 404 ? 'not found' : 'failed to load'
+                e.status === 404 ? 'not found' : 'failed to load',
               )
             }
           },

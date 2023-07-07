@@ -147,7 +147,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
           .appendTo(row3)
         ;[{ val: 'privateKey', text: 'DS PKCS8 Private Key (PEM)' }].forEach(
           ({ val, text }) =>
-            $('<option></option>').val(val).text(text).appendTo(typeField)
+            $('<option></option>').val(val).text(text).appendTo(typeField),
         )
 
         $('<label/>')
@@ -158,7 +158,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
           .attr('id', `node-input-key-content-${index}`)
           .attr(
             'placeholder',
-            '-----BEGIN PRIVATE KEY-----\nMIIBrDCCAVKgAwIBAg...'
+            '-----BEGIN PRIVATE KEY-----\nMIIBrDCCAVKgAwIBAg...',
           )
           .prop('required', true)
           .val(data?.content ?? '')
@@ -168,13 +168,13 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-signer', {
       sortable: true,
       sort(
         itemA: Partial<KeyDefinition>,
-        itemB: Partial<KeyDefinition>
+        itemB: Partial<KeyDefinition>,
       ): number {
         return (itemA?.name ?? '').localeCompare(itemB?.name ?? '')
       },
     })
     this.keys?.forEach((keyDef) =>
-      $('#node-input-key-container').editableList('addItem', keyDef)
+      $('#node-input-key-container').editableList('addItem', keyDef),
     )
   },
   oneditsave(this) {

@@ -150,21 +150,21 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
               RED._('common.notification.error', {
                 message: RED._('common.notification.errors.not-deployed'),
               }),
-              'error'
+              'error',
             )
           } else if (jqXHR.status == 500) {
             RED.notify(
               RED._('common.notification.error', {
                 message: RED._('inject.errors.failed'),
               }),
-              'error'
+              'error',
             )
           } else if (jqXHR.status == 0) {
             RED.notify(
               RED._('common.notification.error', {
                 message: RED._('common.notification.errors.no-response'),
               }),
-              'error'
+              'error',
             )
           } else {
             RED.notify(
@@ -174,7 +174,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
                   message: textStatus,
                 }),
               }),
-              'error'
+              'error',
             )
           }
         },
@@ -276,7 +276,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
           { val: 'certificate', text: 'Device KA X509 Certificate (PEM)' },
           { val: 'privateKey', text: 'Supplier KA PP PKCS8 Private Key (PEM)' },
         ].forEach(({ val, text }) =>
-          $('<option></option>').val(val).text(text).appendTo(typeField)
+          $('<option></option>').val(val).text(text).appendTo(typeField),
         )
 
         $('<label/>')
@@ -287,7 +287,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
           .attr('id', `node-input-key-content-${index}`)
           .attr(
             'placeholder',
-            '-----BEGIN PRIVATE KEY-----\nMIIBrDCCAVKgAwIBAg...'
+            '-----BEGIN PRIVATE KEY-----\nMIIBrDCCAVKgAwIBAg...',
           )
           .prop('required', true)
           .val(data?.content ?? '')
@@ -305,13 +305,13 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
       sortable: true,
       sort(
         itemA: Partial<KeyDefinition>,
-        itemB: Partial<KeyDefinition>
+        itemB: Partial<KeyDefinition>,
       ): number {
         return (itemA?.name ?? '').localeCompare(itemB?.name ?? '')
       },
     })
     this.keys?.forEach((keyDef) =>
-      $('#node-input-key-container').editableList('addItem', keyDef)
+      $('#node-input-key-container').editableList('addItem', keyDef),
     )
   },
   oneditsave(this) {
