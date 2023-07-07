@@ -37,7 +37,7 @@ export = function (RED: NodeAPI) {
     this.signedprecommand = setMessageProperty(
       RED,
       config.signedprecommand,
-      'payload.signedprecommand'
+      'payload.signedprecommand',
     )
     this.signerEUI =
       config.signerEUI_type === 'msg'
@@ -53,8 +53,8 @@ export = function (RED: NodeAPI) {
       } else {
         done(
           new Error(
-            `pre-command ${this.precommand} must be base64 encoded string or buffer`
-          )
+            `pre-command ${this.precommand} must be base64 encoded string or buffer`,
+          ),
         )
         return
       }
@@ -62,7 +62,7 @@ export = function (RED: NodeAPI) {
       if (typeof this.signerEUI === 'string') {
         const maybeOriginatorId = RED.util.getMessageProperty(
           msg,
-          this.signerEUI
+          this.signerEUI,
         )
         if (typeof maybeOriginatorId === 'string') {
           originatorId = maybeOriginatorId

@@ -31,7 +31,7 @@ declare const RED: EditorRED
  * @param node
  */
 function addHandler(
-  node: EditorNodeInstance<Properties & EditorNodeProperties>
+  node: EditorNodeInstance<Properties & EditorNodeProperties>,
 ): void {
   if (node.type === 'dccboxed-config') {
     wsHandlers[node.id] = wsHandler
@@ -44,7 +44,7 @@ function addHandler(
  * @param node
  */
 function removeHandler(
-  node: EditorNodeInstance<Properties & EditorNodeProperties>
+  node: EditorNodeInstance<Properties & EditorNodeProperties>,
 ): void {
   if (node.type === 'dccboxed-config') {
     if (node.id in wsHandlers) {
@@ -76,7 +76,7 @@ const wsHandler: WSHandlerCallback<WSMessageDTO> = (topic, data) => {
 }
 
 function isConfigNode(
-  o: Object
+  o: Object,
 ): o is Properties & { type: 'dccboxed-config'; id: string } {
   const x = <Properties & { type: 'dccboxed-config'; id: string }>o
   return (
@@ -102,7 +102,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
       value: '1.2.3.4',
       required: true,
       validate: RED.validators.regex(
-        /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/
+        /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/,
       ),
     },
     port: { value: 8079, required: true, validate: RED.validators.number() },

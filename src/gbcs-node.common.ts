@@ -25,7 +25,7 @@ import type { GbcsNode, Properties } from './gbcs-node.properties'
 import { normaliseEUI, KeyUsage } from '@smartdcc/dccboxed-keystore'
 
 function removeNotBoxedEntries<T extends { role?: number; name?: string }>(
-  prepayment: boolean
+  prepayment: boolean,
 ): ({ role, name }: T) => boolean {
   return ({ role, name }: T) =>
     role !== 135 &&
@@ -44,7 +44,7 @@ export async function ServerKeyStore(
   options: {
     privateKey?: boolean
     prePayment?: boolean
-  }
+  },
 ): Promise<KeyObject> {
   if (options.privateKey) {
     let results = await server.keyStore?.query({
@@ -54,7 +54,7 @@ export async function ServerKeyStore(
       lookup: 'privateKey',
     })
     results = (results ?? []).filter(
-      removeNotBoxedEntries(options.prePayment ?? false)
+      removeNotBoxedEntries(options.prePayment ?? false),
     )
     if (results.length === 1) {
       return results[0].privateKey
@@ -62,7 +62,7 @@ export async function ServerKeyStore(
       RED.log.warn(
         `searching for ${normaliseEUI(eui)} privateKey ${
           options.prePayment ? '(prepayment)' : ''
-        } found ${results.length} candidates`
+        } found ${results.length} candidates`,
       )
     }
   } else {
@@ -73,7 +73,7 @@ export async function ServerKeyStore(
       lookup: 'certificate',
     })
     results = (results ?? []).filter(
-      removeNotBoxedEntries(options.prePayment ?? false)
+      removeNotBoxedEntries(options.prePayment ?? false),
     )
     if (results.length === 1) {
       return results[0].certificate.publicKey
@@ -81,21 +81,21 @@ export async function ServerKeyStore(
       RED.log.warn(
         `searching for ${normaliseEUI(eui)} certificate ${
           options.prePayment ? '(prepayment)' : ''
-        } found ${results.length} candidates`
+        } found ${results.length} candidates`,
       )
     }
   }
   throw new Error(
     `${options.privateKey ? 'private' : 'public'} key ${
       options.prePayment ? '(prepayment)' : ''
-    } not found for ${normaliseEUI(eui)} for ${type}`
+    } not found for ${normaliseEUI(eui)} for ${type}`,
   )
 }
 
 export function bootstrap(
   this: GbcsNode,
   config: Properties & NodeDef,
-  RED: NodeAPI
+  RED: NodeAPI,
 ) {
   if (config.server) {
     this.server = RED.nodes.getNode(config.server) as ConfigNode
@@ -113,7 +113,7 @@ export function bootstrap(
         }
       } catch {
         throw new Error(
-          `unable to load ${keyDef.type} for ${keyDef.name} (${keyDef.eui})`
+          `unable to load ${keyDef.type} for ${keyDef.name} (${keyDef.eui})`,
         )
       }
       this.localKeys.push({
@@ -144,7 +144,7 @@ export function bootstrap(
     throw new Error(
       `${
         options.privateKey ? 'private' : 'public'
-      } key not found for ${normaliseEUI(eui)} for ${type}`
+      } key not found for ${normaliseEUI(eui)} for ${type}`,
     )
   }
 }

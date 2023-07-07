@@ -116,7 +116,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
           { val: 'certificate', text: 'X509 Certificate (PEM)' },
           { val: 'privateKey', text: 'PKCS8 Private Key (PEM)' },
         ].forEach(({ val, text }) =>
-          $('<option></option>').val(val).text(text).appendTo(typeField)
+          $('<option></option>').val(val).text(text).appendTo(typeField),
         )
         const usageField = $('<select/>', {
           class: 'g1',
@@ -128,7 +128,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
           { val: 'DS', text: 'Digital Signature' },
           { val: 'KA', text: 'Key Agreement' },
         ].forEach(({ val, text }) =>
-          $('<option></option>').val(val).text(text).appendTo(usageField)
+          $('<option></option>').val(val).text(text).appendTo(usageField),
         )
 
         $('<label/>')
@@ -139,7 +139,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
           .attr('id', `node-input-key-content-${index}`)
           .attr(
             'placeholder',
-            '-----BEGIN CERTIFICATE-----\nMIIBrDCCAVKgAwIBAg...'
+            '-----BEGIN CERTIFICATE-----\nMIIBrDCCAVKgAwIBAg...',
           )
           .prop('required', true)
           .val(data?.content ?? '')
@@ -153,13 +153,13 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
       sortable: true,
       sort(
         itemA: Partial<KeyDefinition>,
-        itemB: Partial<KeyDefinition>
+        itemB: Partial<KeyDefinition>,
       ): number {
         return (itemA?.name ?? '').localeCompare(itemB?.name ?? '')
       },
     })
     this.keys?.forEach((keyDef) =>
-      $('#node-input-key-container').editableList('addItem', keyDef)
+      $('#node-input-key-container').editableList('addItem', keyDef),
     )
   },
   oneditsave(this) {

@@ -49,7 +49,7 @@ export interface ReceiveNode extends Node {
           type: 'response' | 'devicealert' | 'dccalert' | 'error'
           payload: NodeMessage
         }
-      | { type: 'none' }
+      | { type: 'none' },
   ): void
   decodeGbcs: boolean
   notifyDeviceAlerts: boolean

@@ -73,8 +73,8 @@ export = function (RED: NodeAPI) {
         })
         done(
           new Error(
-            `tried to send a cv not supported by DCC Boxed: ${cv.number}`
-          )
+            `tried to send a cv not supported by DCC Boxed: ${cv.number}`,
+          ),
         )
         return
       }
@@ -88,7 +88,7 @@ export = function (RED: NodeAPI) {
               text: s,
             }),
           cv.webService,
-          req
+          req,
         )
         .then((duis) => {
           this.output(msg, duis)

@@ -63,15 +63,15 @@ export = function (RED: NodeAPI) {
 
     this.outputResponsesFilter = buildRegExp(
       config.outputResponsesFilterType,
-      config.outputResponsesFilter
+      config.outputResponsesFilter,
     )
     this.outputDeviceAlertsFilter = buildRegExp(
       config.outputDeviceAlertsFilterType,
-      config.outputDeviceAlertsFilter
+      config.outputDeviceAlertsFilter,
     )
     this.outputDCCAlertsFilter = buildRegExp(
       config.outputDCCAlertsFilterType,
-      config.outputDCCAlertsFilter
+      config.outputDCCAlertsFilter,
     )
 
     {
@@ -126,12 +126,12 @@ export = function (RED: NodeAPI) {
 
     const NewDuis = (
       sd: SimplifiedDuisOutputResponse,
-      msg: NodeMessage | undefined
+      msg: NodeMessage | undefined,
     ) => {
       if (
         isSimplifiedDuisResponseBody_ResponseMessage(sd.body) &&
         sd.body.ResponseMessage.ServiceReferenceVariant.match(
-          this.outputResponsesFilter
+          this.outputResponsesFilter,
         ) === null
       ) {
         return this.sendOutput({ type: 'none' })
@@ -139,7 +139,7 @@ export = function (RED: NodeAPI) {
       if (
         isSimplifiedDuisResponseBody_DeviceAlertMessage(sd.body) &&
         sd.body.DeviceAlertMessage.AlertCode.match(
-          this.outputDeviceAlertsFilter
+          this.outputDeviceAlertsFilter,
         ) === null
       ) {
         return this.sendOutput({ type: 'none' })
@@ -147,7 +147,7 @@ export = function (RED: NodeAPI) {
       if (
         isSimplifiedDuisResponseBody_DCCAlertMessage(sd.body) &&
         sd.body.DCCAlertMessage.DCCAlertCode.match(
-          this.outputDCCAlertsFilter
+          this.outputDCCAlertsFilter,
         ) === null
       ) {
         return this.sendOutput({ type: 'none' })
@@ -182,7 +182,7 @@ export = function (RED: NodeAPI) {
             this.gbcsOutput &&
             isSimplifiedDuisResponseBody_ResponseMessage_X(
               'GBCSPayload',
-              sd.body
+              sd.body,
             ) &&
             this.decodeGbcs
           ) {
@@ -191,7 +191,7 @@ export = function (RED: NodeAPI) {
             parseGbcsMessage(
               sd.body.ResponseMessage.GBCSPayload,
               (eui, type, options) =>
-                ServerKeyStore(this.server, RED, eui, type, options)
+                ServerKeyStore(this.server, RED, eui, type, options),
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
@@ -202,7 +202,7 @@ export = function (RED: NodeAPI) {
             this.gbcsOutput &&
             isSimplifiedDuisResponseBody_ResponseMessage_X(
               'FutureDatedDeviceAlertMessage',
-              sd.body
+              sd.body,
             ) &&
             this.decodeGbcs
           ) {
@@ -211,7 +211,7 @@ export = function (RED: NodeAPI) {
             parseGbcsMessage(
               sd.body.ResponseMessage.FutureDatedDeviceAlertMessage.GBCSPayload,
               (eui, type, options) =>
-                ServerKeyStore(this.server, RED, eui, type, options)
+                ServerKeyStore(this.server, RED, eui, type, options),
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
@@ -229,7 +229,7 @@ export = function (RED: NodeAPI) {
             parseGbcsMessage(
               sd.body.DeviceAlertMessage.GBCSPayload,
               (eui, type, options) =>
-                ServerKeyStore(this.server, RED, eui, type, options)
+                ServerKeyStore(this.server, RED, eui, type, options),
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
@@ -242,7 +242,7 @@ export = function (RED: NodeAPI) {
               text: `device alert code: ${sd.body.DeviceAlertMessage.AlertCode}`,
             })
             const alertDescription = getAlertCodeName(
-              Number(`0x${_body.DeviceAlertMessage.AlertCode}`)
+              Number(`0x${_body.DeviceAlertMessage.AlertCode}`),
             )
             if (
               typeof alertDescription === 'string' &&

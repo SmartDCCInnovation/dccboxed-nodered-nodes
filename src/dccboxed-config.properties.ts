@@ -39,7 +39,7 @@ import type { FileHandle } from 'node:fs/promises'
 export interface MessageStore {
   store(reqid: RequestId<number | bigint> | undefined, msg: NodeMessage): void
   retrieve(
-    reqid: RequestId<number | bigint> | undefined
+    reqid: RequestId<number | bigint> | undefined,
   ): NodeMessage | undefined
 }
 
@@ -48,8 +48,8 @@ interface DuisEmitter extends EventEmitter {
     eventName: 'duis',
     listener: (
       message: SimplifiedDuisOutputResponse,
-      msg: NodeMessage | undefined
-    ) => void
+      msg: NodeMessage | undefined,
+    ) => void,
   ): this
   on(eventName: 'error', listener: (e: Error) => void): this
 }
@@ -67,7 +67,7 @@ export interface ConfigNode extends Node {
   request: (
     status: (status: string) => void | Promise<void>,
     endpoint: DspEndpoint,
-    duis: SimplifiedDuisInputRequest
+    duis: SimplifiedDuisInputRequest,
   ) => Promise<SimplifiedDuisOutputResponse>
   logger: (msg: string) => void | Promise<void>
   logfile?: FileHandle

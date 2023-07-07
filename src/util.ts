@@ -22,7 +22,7 @@ import { NodeAPI, NodeMessage } from 'node-red'
 export function setMessageProperty(
   RED: NodeAPI,
   path: string | undefined,
-  defaultPath: string
+  defaultPath: string,
 ): (msg: NodeMessage, value: unknown) => void {
   const _path = (path ?? '').trim() || defaultPath
   return (msg, value) => {
