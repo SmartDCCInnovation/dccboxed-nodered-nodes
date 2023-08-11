@@ -103,6 +103,8 @@ jobs:
       run: node -e 'require("./dist/gbcs-parser")'
     - name: Import gbcs-signer.js
       run: node -e 'require("./dist/gbcs-signer")'
+    - name: Import gbcs-utrn.js
+      run: node -e 'require("./dist/gbcs-utrn")'
 
   test:
     if: false # disable as currently no test cases
