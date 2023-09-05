@@ -416,7 +416,7 @@ RED.nodes.registerType<ENT>('duis-template', {
                 !firstLoad ||
                 (firstLoad && node.editor.getValue().trim() === '')
               ) {
-                node.editor.setValue(JSON.stringify(data.body, null, 2))
+                node.editor.setValue(JSON.stringify(data.body, null, 4))
               }
               firstLoad = false
               resizeConfigPane.bind(this)()
