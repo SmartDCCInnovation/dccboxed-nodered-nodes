@@ -105,6 +105,8 @@ jobs:
       run: node -e 'require("./dist/gbcs-signer")'
     - name: Import gbcs-utrn.js
       run: node -e 'require("./dist/gbcs-utrn")'
+    - name: Import duis-tariff.js
+      run: node -e 'require("./dist/duis-tariff")'
 
   test:
     if: false # disable as currently no test cases

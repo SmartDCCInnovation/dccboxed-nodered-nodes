@@ -24,7 +24,11 @@ import {
   isSimplifiedDuisResponseBody_ResponseMessage_X,
   SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
-import { minimizeMessage, parseGbcsMessage } from '@smartdcc/gbcs-parser'
+import {
+  decodeECS24,
+  minimizeMessage,
+  parseGbcsMessage,
+} from '@smartdcc/gbcs-parser'
 import type { NodeDef, NodeAPI, NodeMessage, NodeStatus } from 'node-red'
 import { ConfigNode } from './dccboxed-config.properties'
 
@@ -194,7 +198,15 @@ export = function (RED: NodeAPI) {
                 ServerKeyStore(this.server, RED, eui, type, options),
             )
               .then((gbcs) => {
-                go(_msg, minimizeMessage(gbcs))
+                const mgbcs = minimizeMessage(gbcs)
+                const ecs24 = decodeECS24(mgbcs)
+
+                if (ecs24) {
+                  go(_msg, { ...mgbcs, ecs24 })
+                } else {
+                  go(_msg, mgbcs)
+                }
+
                 this.sendOutput({ type: 'response', payload: _msg })
               })
               .catch((e) => this.error(e))

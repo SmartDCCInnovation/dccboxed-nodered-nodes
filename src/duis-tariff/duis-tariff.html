@@ -1,0 +1,80 @@
+<!--
+ Created on Thu Aug 17 2023
+
+ Copyright (c) 2023 Smart DCC Limited
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<script type="text/html" data-template-name="duis-tariff">
+  <div class="form-row">
+    <label for="node-input-input"><i class="fa fa-tasks"></i> Template</label>
+    <input id="node-input-input" type="text" style="width: 70%" />
+    <input id="node-input-input_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-output"
+      ><i class="fa fa-ellipsis-h"></i> Output</label
+    >
+    <input id="node-input-output" type="text" style="width: 70%" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-originatorEUI"
+      ><i class="fa fa-ellipsis-h"></i> Originator</label
+    >
+    <input id="node-input-originatorEUI" type="text" style="width: 70%" />
+    <input id="node-input-originatorEUI_type" type="hidden" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-targetEUI"
+      ><i class="fa fa-ellipsis-h"></i> Target</label
+    >
+    <input id="node-input-targetEUI" type="text" style="width: 70%" />
+    <input id="node-input-targetEUI_type" type="hidden" />
+  </div>
+
+  <input type="hidden" id="node-input-tariffBody" />
+  <div
+    class="form-row node-text-editor-row duis-tariff-relative duis-tariff-tariffBody-container"
+  >
+    <div
+      style="height:250px; min-height:100px"
+      class="node-text-editor"
+      id="node-input-tariffBody-editor"
+    ></div>
+    <div class="duis-tariff-edited">
+      <i
+        class="fa fa-pencil-square-o"
+        aria-hidden="true"
+        title="Locally modified tariff."
+      ></i>
+    </div>
+
+    <div class="duis-tariff-invalid">
+      <i class="fa fa-times" aria-hidden="true" title="Invalid tariff."></i>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="duis-tariff">
+  <p>Build ESME tariffs.</p>
+</script>
