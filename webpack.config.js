@@ -26,7 +26,7 @@ const entry = Object.assign(
   {},
   ...glob.sync('./src/**/*.editor.ts').map((f) => ({
     [f.match(/(?<=\/)[a-zA-Z0-9_-]+(?=\.editor\.ts)/)[0]]: f,
-  }))
+  })),
 )
 
 const outputs = Object.keys(entry).map(
@@ -36,14 +36,14 @@ const outputs = Object.keys(entry).map(
       chunks: [f],
       template: entry[f].slice(0, -10) + '.html',
       inject: 'body',
-    })
+    }),
 )
 
 module.exports = {
   mode: 'development',
   entry,
   resolve: {
-    extensions: ['.ts'],
+    extensions: ['.ts', '.js'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
