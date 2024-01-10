@@ -23,7 +23,7 @@ import type {
   XMLData,
 } from '@smartdcc/duis-parser'
 import type { Node as RedNode, NodeMessage } from 'node-red'
-import type Fuse from 'fuse.js'
+import type { FuseResultMatch } from 'fuse.js'
 
 export interface Properties {
   template: string
@@ -56,7 +56,7 @@ export interface TemplateDTO {
   gbcs?: string
   gbcsVariant?: string
   gbcsTitle?: string
-  matches: Fuse.FuseResultMatch[]
+  matches: FuseResultMatch[]
 }
 
 export type TemplateLookupDTO = Omit<TemplateDTO, 'matches'> & { body: XMLData }
