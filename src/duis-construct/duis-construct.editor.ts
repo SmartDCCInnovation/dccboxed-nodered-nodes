@@ -28,8 +28,8 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('duis-construct', {
   defaults: {
     name: { value: '' },
     minimal: { value: true },
-    input: { value: 'request.request', required: true },
-    output: { value: 'request.request', required: true },
+    input: { value: 'payload.request', required: true },
+    output: { value: 'payload.request', required: true },
   },
   inputs: 1,
   outputs: 1,
