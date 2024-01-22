@@ -188,12 +188,12 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
     })
     $('#node-input-signerEUI').typedInput({
       default: 'eui',
-      types: ['msg', typedInputEUI],
+      types: ['msg', 'flow', 'global', typedInputEUI],
       typeField: $('#node-input-signerEUI_type'),
     })
     $('#node-input-deviceEUI').typedInput({
       default: 'eui',
-      types: ['msg', typedInputEUI],
+      types: ['msg', 'flow', 'global', typedInputEUI],
       typeField: $('#node-input-deviceEUI_type'),
     })
     $('#node-input-counter').typedInput({

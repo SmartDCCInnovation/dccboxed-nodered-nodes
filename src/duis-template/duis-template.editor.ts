@@ -282,6 +282,8 @@ RED.nodes.registerType<ENT>('duis-template', {
         default: 'default',
         types: [
           'msg',
+          'flow',
+          'global',
           typedInputEUI,
           {
             value: 'default',

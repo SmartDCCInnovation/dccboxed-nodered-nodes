@@ -43,12 +43,16 @@ const euiRegex = /^([0-9a-fA-F]{2}([- ](?!$))?){8}$/
  * @param selector looks up the type of a typeInput
  * @returns
  */
-export function euiValidator<T>(selector: (this: T) => true | 'msg' | 'eui') {
+export function euiValidator<T>(
+  selector: (this: T) => true | 'msg' | 'flow' | 'global' | 'eui',
+) {
   return function (this: T, val: string): boolean {
     switch (selector.call(this)) {
       case true:
         return true
       case 'msg':
+      case 'flow':
+      case 'global':
         return val.length > 0
       case 'eui':
         return val.match(euiRegex) !== null

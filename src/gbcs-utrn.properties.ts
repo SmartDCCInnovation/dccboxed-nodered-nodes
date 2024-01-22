@@ -28,9 +28,9 @@ export interface Properties extends GBCSNodeProperties {
   outputUtrn: string
   outputCounter: string
   signerEUI: string
-  signerEUI_type: 'msg' | 'eui'
+  signerEUI_type: 'msg' | 'flow' | 'global' | 'eui'
   deviceEUI: string
-  deviceEUI_type: 'msg' | 'eui'
+  deviceEUI_type: 'msg' | 'flow' | 'global' | 'eui'
   counter: string
   counter_type: 'msg' | 'num' | 'epoch'
   value: string
@@ -43,8 +43,8 @@ export interface Properties extends GBCSNodeProperties {
 export interface Node extends GbcsNode {
   outputUtrn: (msg: NodeMessage, value: unknown) => void
   outputCounter: (msg: NodeMessage, value: unknown) => void
-  signerEUI: (msg: NodeMessage) => unknown
-  deviceEUI: (msg: NodeMessage) => unknown
+  signerEUI: (msg: NodeMessage) => Promise<string | undefined>
+  deviceEUI: (msg: NodeMessage) => Promise<string | undefined>
   counter: (msg: NodeMessage) => unknown
   value: (msg: NodeMessage) => unknown
   class: (msg: NodeMessage) => unknown
