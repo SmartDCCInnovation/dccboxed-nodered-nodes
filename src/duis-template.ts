@@ -29,7 +29,8 @@ import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 import { loadTemplates, search } from '@smartdcc/duis-templates'
 
 import structuredClone from '@ungap/structured-clone'
-import { setMessageProperty } from './util'
+import { runMustache, setMessageProperty } from './util'
+import { isXMLData } from '@smartdcc/duis-parser'
 
 export = function (RED: NodeAPI) {
   /* asynchronously load the templates on startup */
@@ -129,11 +130,17 @@ export = function (RED: NodeAPI) {
             ? templates[this.template]
             : Promise.reject(`template ${this.template} not found`),
         )
-        .then((template) => {
+        .then(async (template) => {
           if (this.minimal) {
             const sd = structuredClone(template.simplified)
             if (this.templateBody) {
               sd.body = structuredClone(this.templateBody)
+            }
+            const processedTemplate = await runMustache(RED, sd.body, this, msg)
+            if (isXMLData(processedTemplate)) {
+              sd.body = processedTemplate
+            } else {
+              this.warn(`failed to run mustache`)
             }
             const originatorEUI = this.originatorEUI(msg)
             if (originatorEUI && sd.header.type === 'request') {
