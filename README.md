@@ -141,6 +141,9 @@ properties in the usual way. Below shows the properties pane of the
     these values can be found in the DUIS specification. For *Target* field, the
     device EUI can typically be found from the *HAN* page in DCC&nbsp;Boxed.
 
+    These *Originator* and *Target* fields also support looking up their values
+    from the input message, global variables or flow variables.
+
   * The text box below is used for showing the payload of the DUIS template.
     This can be edited by the user to change the default values in the chosen
     template. The following shows an example of a service request selected with
@@ -150,6 +153,12 @@ properties in the usual way. Below shows the properties pane of the
 
     If the template is edited for a given node, a symbol is shown in bottom
     right corner of the editor.
+
+    Moreover, it is possible to use `global`/`flow` variables in the editor
+    view. A common use-case for this is when performing a pair-wise join of two
+    devices (such as an ESME and PPMID):
+
+    ![duis-template json editor](images/duis-template-mustache.png)
 
 
 #### Node `dccboxed-config`
