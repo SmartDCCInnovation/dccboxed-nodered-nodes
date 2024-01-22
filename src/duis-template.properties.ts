@@ -33,9 +33,9 @@ export interface Properties {
   output?: string
   enableInject: boolean
   originatorEUI?: string
-  originatorEUI_type: 'default' | 'msg' | 'eui'
+  originatorEUI_type: 'default' | 'msg' | 'flow' | 'global' | 'eui'
   targetEUI?: string
-  targetEUI_type: 'default' | 'msg' | 'eui'
+  targetEUI_type: 'default' | 'msg' | 'flow' | 'global' | 'eui'
   deafultName?: string
 }
 
@@ -44,8 +44,8 @@ export interface Node extends RedNode {
   templateBody?: XMLData
   minimal: boolean
   output: (msg: NodeMessage, value: unknown) => void
-  originatorEUI: (msg: NodeMessage) => string | undefined
-  targetEUI: (msg: NodeMessage) => string | undefined
+  originatorEUI: (msg: NodeMessage) => Promise<string | undefined>
+  targetEUI: (msg: NodeMessage) => Promise<string | undefined>
 }
 
 export interface TemplateDTO {

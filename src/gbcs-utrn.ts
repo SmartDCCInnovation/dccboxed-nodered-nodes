@@ -17,12 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { EUI, normaliseEUI } from '@smartdcc/dccboxed-keystore'
 import { utrn } from '@smartdcc/gbcs-parser'
 import { NodeAPI, NodeDef } from 'node-red'
 import { bootstrap } from './gbcs-node.common'
 import { Node, Properties } from './gbcs-utrn.properties'
-import { setMessageProperty } from './util'
+import { extractEUI, setMessageProperty } from './util'
 
 export = function (RED: NodeAPI) {
   function GbcsUtrn(this: Node, config: Properties & NodeDef) {
@@ -39,26 +38,23 @@ export = function (RED: NodeAPI) {
       'payload.utrn.counter',
     )
 
-    {
-      if (config.signerEUI_type === 'msg') {
-        const signerEUI =
-          (config.signerEUI ?? '').trim() || 'payload.originator'
-        this.signerEUI = (msg) => RED.util.getMessageProperty(msg, signerEUI)
-      } else {
-        const eui = new EUI(config.signerEUI)
-        this.signerEUI = () => eui.toString()
-      }
-    }
+    this.signerEUI = extractEUI(
+      RED,
+      config.signerEUI,
+      config.signerEUI_type,
+      'payload.originator',
+      this,
+      () => true,
+    )
 
-    {
-      if (config.deviceEUI_type === 'msg') {
-        const deviceEUI = (config.deviceEUI ?? '').trim() || 'payload.target'
-        this.deviceEUI = (msg) => RED.util.getMessageProperty(msg, deviceEUI)
-      } else {
-        const eui = new EUI(config.deviceEUI)
-        this.deviceEUI = () => eui.toString()
-      }
-    }
+    this.deviceEUI = extractEUI(
+      RED,
+      config.deviceEUI,
+      config.deviceEUI_type,
+      'payload.target',
+      this,
+      () => true,
+    )
 
     {
       switch (config.counter_type) {
@@ -122,7 +118,7 @@ export = function (RED: NodeAPI) {
       }
     }
 
-    this.on('input', (msg, send, done) => {
+    this.on('input', async (msg, send, done) => {
       const maybeCounter = this.counter(msg)
       if (
         typeof maybeCounter !== 'string' &&
@@ -171,51 +167,49 @@ export = function (RED: NodeAPI) {
       }
 
       let originator: string
-      const maybeOriginator = this.signerEUI(msg)
       try {
+        const maybeOriginator = await this.signerEUI(msg)
         if (typeof maybeOriginator === 'string') {
-          originator = normaliseEUI(maybeOriginator)
-        } else if (ArrayBuffer.isView(maybeOriginator)) {
-          originator = normaliseEUI(new Uint8Array(maybeOriginator.buffer))
+          originator = maybeOriginator
         } else {
           done(new Error('signer eui should be a string'))
           return
         }
-      } catch {
-        done(new Error('signer eui should be string of 16 hex chars'))
+      } catch (err) {
+        done(err as Error)
         return
       }
 
       let target: string
-      const maybeTarget = this.deviceEUI(msg)
       try {
+        const maybeTarget = await this.deviceEUI(msg)
         if (typeof maybeTarget === 'string') {
-          target = normaliseEUI(maybeTarget)
-        } else if (ArrayBuffer.isView(maybeTarget)) {
-          target = normaliseEUI(new Uint8Array(maybeTarget.buffer))
+          target = maybeTarget
         } else {
           done(new Error('target eui should be a string'))
           return
         }
-      } catch {
-        done(new Error('target eui should be string of 16 hex chars'))
+      } catch (err) {
+        done(err as Error)
         return
       }
 
-      utrn({
-        counter,
-        value: ptutValue,
-        valueClass: ptutClass,
-        originator,
-        target,
-        lookupKey: this.keyStore,
-      })
-        .then((utrn) => {
-          this.outputUtrn(msg, utrn)
-          this.outputCounter(msg, counter)
-          send(msg)
+      try {
+        const _utrn = await utrn({
+          counter,
+          value: ptutValue,
+          valueClass: ptutClass,
+          originator,
+          target,
+          lookupKey: this.keyStore,
         })
-        .catch(done)
+
+        this.outputUtrn(msg, _utrn)
+        this.outputCounter(msg, counter)
+        send(msg)
+      } catch (e) {
+        done(e as Error)
+      }
     })
   }
   RED.nodes.registerType('gbcs-utrn', GbcsUtrn)

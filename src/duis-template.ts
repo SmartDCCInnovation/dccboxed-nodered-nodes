@@ -25,11 +25,10 @@ import type {
   TemplateDTO,
   TemplateLookupDTO,
 } from './duis-template.properties'
-import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 import { loadTemplates, search } from '@smartdcc/duis-templates'
 
 import structuredClone from '@ungap/structured-clone'
-import { runMustache, setMessageProperty } from './util'
+import { extractEUI, runMustache, setMessageProperty } from './util'
 import { isXMLData } from '@smartdcc/duis-parser'
 
 export = function (RED: NodeAPI) {
@@ -68,61 +67,33 @@ export = function (RED: NodeAPI) {
       }
     }
 
-    this.originatorEUI = (msg) => {
-      let eui: string
-      switch (config.originatorEUI_type) {
-        case 'default':
-          return
-        case 'msg': {
-          const x = RED.util.getMessageProperty(
-            msg,
-            config.originatorEUI ?? 'payload.originatorEUI',
-          )
-          if (typeof x === 'string') {
-            eui = x
-          } else {
-            throw new Error(
-              `could not extract originator eui from ${config.originatorEUI}`,
-            )
-          }
-          break
-        }
-        case 'eui':
-          eui = config.originatorEUI as string
+    let _showWarning = true
+    const showWarning = () => {
+      if (_showWarning) {
+        _showWarning = false
+        return true
       }
-
-      return normaliseEUI(eui)
-        .toString()
-        .replace(/([0-9a-fA-F]{2}(?!$))/g, '$1-')
+      return false
     }
 
-    this.targetEUI = (msg) => {
-      let eui: string
-      switch (config.targetEUI_type) {
-        case 'default':
-          return
-        case 'msg': {
-          const x = RED.util.getMessageProperty(
-            msg,
-            config.targetEUI ?? 'payload.targetEUI',
-          )
-          if (typeof x === 'string') {
-            eui = x
-          } else {
-            throw new Error(
-              `could not extract target eui from ${config.targetEUI}`,
-            )
-          }
-          break
-        }
-        case 'eui':
-          eui = config.targetEUI as string
-      }
+    this.originatorEUI = extractEUI(
+      RED,
+      config.originatorEUI,
+      config.originatorEUI_type,
+      'payload.originatorEUI',
+      this,
+      showWarning,
+    )
 
-      return normaliseEUI(eui)
-        .toString()
-        .replace(/([0-9a-fA-F]{2}(?!$))/g, '$1-')
-    }
+    this.targetEUI = extractEUI(
+      RED,
+      config.targetEUI,
+      config.targetEUI_type,
+      'payload.targetEUI',
+      this,
+      showWarning,
+    )
+
     this.on('input', (msg, send, done) => {
       templates
         .then((templates) =>
@@ -142,11 +113,11 @@ export = function (RED: NodeAPI) {
             } else {
               this.warn(`failed to run mustache`)
             }
-            const originatorEUI = this.originatorEUI(msg)
+            const originatorEUI = await this.originatorEUI(msg)
             if (originatorEUI && sd.header.type === 'request') {
               sd.header.requestId.originatorId = originatorEUI
             }
-            const targetEUI = this.targetEUI(msg)
+            const targetEUI = await this.targetEUI(msg)
             if (targetEUI && sd.header.type === 'request') {
               sd.header.requestId.targetId = targetEUI
             }

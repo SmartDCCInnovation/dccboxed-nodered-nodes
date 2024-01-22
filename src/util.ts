@@ -19,6 +19,7 @@
 
 import { Node, NodeAPI, NodeContext, NodeMessage } from 'node-red'
 import { Context, TemplateSpans, parse, render } from 'mustache'
+import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 
 export function setMessageProperty(
   RED: NodeAPI,
@@ -220,5 +221,73 @@ export async function runMustache(
     return result
   } else {
     return JSON.parse(result)
+  }
+}
+
+export function extractEUI(
+  RED: NodeAPI,
+  value: string | undefined,
+  euiType: 'default' | 'msg' | 'flow' | 'global' | 'eui',
+  defaultMessageProperty: string,
+  node: Node,
+  showWarning: () => boolean,
+): (msg: NodeMessage) => Promise<string | undefined> {
+  return async (msg) => {
+    let eui: string
+    switch (euiType) {
+      case 'default':
+        return
+      case 'msg': {
+        const x = RED.util.getMessageProperty(
+          msg,
+          value ?? defaultMessageProperty,
+        )
+        if (typeof x === 'string') {
+          eui = x
+        } else {
+          throw new Error(
+            `could not extract eui from ${value ?? defaultMessageProperty}`,
+          )
+        }
+        break
+      }
+      case 'flow':
+      case 'global':
+        eui = await new Promise((resolve, reject) => {
+          RED.util.evaluateNodeProperty(
+            value as string,
+            euiType,
+            node,
+            msg,
+            (err, result) => {
+              if (err) {
+                reject(err)
+              } else {
+                resolve(result)
+              }
+            },
+          )
+        })
+        if (typeof eui === 'undefined') {
+          if (showWarning()) {
+            node.warn(
+              `when extracting eui from ${euiType}.${value} an undefined value was returned`,
+            )
+          }
+          return
+        }
+        if (typeof eui !== 'string') {
+          throw new Error(
+            `extracting eui from ${euiType}.${value} failed as it is not a string`,
+          )
+        }
+        break
+      case 'eui':
+        eui = value as string
+    }
+
+    return normaliseEUI(eui)
+      .toString()
+      .replace(/([0-9a-fA-F]{2}(?!$))/g, '$1-')
   }
 }
