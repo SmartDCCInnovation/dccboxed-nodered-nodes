@@ -22,8 +22,65 @@ import { NodeAPI, NodeDef } from 'node-red'
 import { bootstrap } from './gbcs-node.common'
 import { Node, Properties } from './gbcs-utrn.properties'
 import { extractEUI, setMessageProperty } from './util'
+import { join } from 'node:path'
+import { readFile, writeFile } from 'node:fs/promises'
+
+function isCounterSpec(o: unknown): o is { counter: string; offset: number } {
+  const x = o as { counter: string; offset: number }
+  return (
+    typeof o === 'object' &&
+    o !== null &&
+    typeof x.counter === 'string' &&
+    typeof x.offset === 'number'
+  )
+}
+
+type CounterSpec = { counter: bigint; offset: number }
 
 export = function (RED: NodeAPI) {
+  async function loadCounterSpec(
+    id: string,
+    baseCounter: bigint,
+  ): Promise<CounterSpec> {
+    const fileName = join(`${RED.settings.userDir}`, `gbcs-utrn-${id}.json`)
+    let counter_spec: unknown = {}
+    try {
+      const data = await readFile(fileName, { encoding: 'utf8' })
+      counter_spec = JSON.parse(data)
+    } catch (e) {
+      /* ignore file access errors and just return a default counter spec */
+    }
+
+    if (isCounterSpec(counter_spec)) {
+      try {
+        const counter = BigInt(counter_spec.counter)
+        if (counter === baseCounter) {
+          return {
+            counter,
+            offset: counter_spec.offset,
+          }
+        }
+      } catch {
+        /* ignore issues caused by BigInt conversion and instead return a
+        default */
+      }
+    }
+
+    return {
+      counter: baseCounter,
+      offset: 0,
+    }
+  }
+
+  function storeCounterSpec(id: string, spec: CounterSpec) {
+    const fileName = join(`${RED.settings.userDir}`, `gbcs-utrn-${id}.json`)
+    const data = JSON.stringify({
+      counter: spec.counter.toString(),
+      offset: spec.offset,
+    })
+    return writeFile(fileName, data, { encoding: 'utf8' })
+  }
+
   function GbcsUtrn(this: Node, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
     bootstrap.bind(this)(config, RED)
@@ -195,6 +252,14 @@ export = function (RED: NodeAPI) {
       }
 
       try {
+        let spec: CounterSpec
+        if (config.counter_type === 'num') {
+          spec = await loadCounterSpec(this.id, counter)
+          counter = spec.counter + BigInt(spec.offset)
+          spec.offset += 0x100000000
+          await storeCounterSpec(this.id, spec)
+        }
+
         const _utrn = await utrn({
           counter,
           value: ptutValue,
@@ -231,6 +296,38 @@ export = function (RED: NodeAPI) {
           res.sendStatus(500)
           node.error(`failed to inject template ${err}`)
         }
+      } else {
+        res.sendStatus(404)
+      }
+    },
+  )
+
+  RED.httpAdmin.get(
+    '/smartdcc/gbcs-utrn/:id/counter/:counter',
+    RED.auth.needsPermission('smartdcc.read'),
+    function (req, res) {
+      const node = RED.nodes.getNode(req.params.id)
+      if (node !== null) {
+        let counter: bigint
+        try {
+          counter = BigInt(req.params.counter)
+        } catch (err) {
+          res.sendStatus(500)
+          node.error(`failed to parse bigint ${err}`)
+          return
+        }
+
+        loadCounterSpec(node.id, counter)
+          .then((spec) => {
+            res.json({
+              counter: spec.counter.toString(),
+              offset: spec.offset,
+            })
+          })
+          .catch((err) => {
+            res.sendStatus(500)
+            node.error(`unable to load counter spec ${err}`)
+          })
       } else {
         res.sendStatus(404)
       }
