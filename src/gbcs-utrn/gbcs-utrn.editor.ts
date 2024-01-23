@@ -196,20 +196,44 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-utrn', {
       types: ['msg', 'flow', 'global', typedInputEUI],
       typeField: $('#node-input-deviceEUI_type'),
     })
-    $('#node-input-counter').typedInput({
-      default: 'epoch',
-      types: [
-        'msg',
-        'num',
-        {
-          value: 'epoch',
-          hasValue: false,
-          label: 'Use Epoch as Counter',
-          icon: 'fa fa-clock-o',
-        },
-      ],
-      typeField: $('#node-input-counter_type'),
-    })
+    $('#node-input-counter')
+      .typedInput({
+        default: 'epoch',
+        types: [
+          'msg',
+          'num',
+          {
+            value: 'epoch',
+            hasValue: false,
+            label: 'Use Epoch as Counter',
+            icon: 'fa fa-clock-o',
+          },
+        ],
+        typeField: $('#node-input-counter_type'),
+      })
+      .on('change', (event, type, val) => {
+        if (type === 'num') {
+          $.ajax({
+            url: `smartdcc/gbcs-utrn/${this.id}/counter/${val}`,
+            type: 'GET',
+            success: function (resp) {
+              if (
+                typeof resp === 'object' &&
+                resp !== null &&
+                typeof resp.counter === 'string' &&
+                typeof resp.offset === 'number'
+              ) {
+                $('#node-info-effective-counter').text(
+                  `Effective counter: 0x${(BigInt(resp.counter) + BigInt(resp.offset)).toString(16)}`,
+                )
+                $('#effective-counter-row').removeClass('hidden')
+              }
+            },
+          })
+        } else {
+          $('#effective-counter-row').addClass('hidden')
+        }
+      })
     $('#node-input-value').typedInput({
       default: 'num',
       types: ['msg', 'num'],

@@ -40,3 +40,7 @@ textarea.utrn-single-input {
   min-height: 20px;
   min-width: 450px;
 }
+
+.hidden {
+  visibility: hidden;
+}
