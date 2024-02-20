@@ -18,3 +18,6 @@ updates:
       # version 11 of got is the last to support commonjs, so prevent upgrading to version 12+
       - dependency-name: got
         update-types: ["version-update:semver-major"]
+    groups:
+      typescript-eslint:
+        patterns: ["@typescript-eslint/*"]
