@@ -33,6 +33,7 @@ jobs:
               "del-cli"
               ]'),
               steps.metadata.outputs.dependency-names)
+            || steps.metadata.outputs.dependency-group == 'typescript-eslint'
           )
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
