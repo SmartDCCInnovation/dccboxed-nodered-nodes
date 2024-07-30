@@ -46,7 +46,7 @@
     "html-webpack-plugin": "^5.5.0",
     "jquery-mask-plugin": "^1.14.16",
     "prettier": "^3.0.0",
-    "style-loader": "^3.3.1",
+    "style-loader": "^4.0.0",
     "ts-loader": "^9.3.1",
     "typescript": "^5.0.2",
     "webpack-cli": "^5.0.0"
