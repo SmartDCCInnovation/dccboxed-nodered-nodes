@@ -47,7 +47,7 @@ export = function (RED: NodeAPI) {
     try {
       const data = await readFile(fileName, { encoding: 'utf8' })
       counter_spec = JSON.parse(data)
-    } catch (e) {
+    } catch {
       /* ignore file access errors and just return a default counter spec */
     }
 
