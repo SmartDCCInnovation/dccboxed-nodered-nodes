@@ -27,6 +27,7 @@ jobs:
             contains(fromJSON('[
               "@typescript-eslint/eslint-plugin",
               "@typescript-eslint/parser",
+              "typescript-eslint",
               "eslint",
               "eslint-config-prettier",
               "prettier",
