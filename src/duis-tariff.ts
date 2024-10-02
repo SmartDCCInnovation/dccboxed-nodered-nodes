@@ -22,13 +22,12 @@ import type { NodeDef, NodeAPI } from 'node-red'
 import type { Node, Properties } from './duis-tariff.properties'
 import type { RequestId } from '@smartdcc/duis-parser'
 
-import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 import {
   buildUpdateImportTariff_PrimaryElement,
   isTariff,
 } from '@smartdcc/duis-templates'
 
-import { setMessageProperty } from './util'
+import { extractEUI, setMessageProperty } from './util'
 
 import { examples } from './duis-tariff/duis-tariff-examples'
 
@@ -53,57 +52,32 @@ export = function (RED: NodeAPI) {
       }
     }
 
-    this.originatorEUI = (msg) => {
-      let eui: string
-      switch (config.originatorEUI_type) {
-        case 'msg': {
-          const x = RED.util.getMessageProperty(
-            msg,
-            config.originatorEUI ?? 'payload.originatorEUI',
-          )
-          if (typeof x === 'string') {
-            eui = x
-          } else {
-            throw new Error(
-              `could not extract originator eui from ${config.originatorEUI}`,
-            )
-          }
-          break
-        }
-        case 'eui':
-          eui = config.originatorEUI as string
+    let _showWarning = true
+    const showWarning = () => {
+      if (_showWarning) {
+        _showWarning = false
+        return true
       }
-
-      return normaliseEUI(eui)
-        .toString()
-        .replace(/([0-9a-fA-F]{2}(?!$))/g, '$1-')
+      return false
     }
 
-    this.targetEUI = (msg) => {
-      let eui: string
-      switch (config.targetEUI_type) {
-        case 'msg': {
-          const x = RED.util.getMessageProperty(
-            msg,
-            config.targetEUI ?? 'payload.targetEUI',
-          )
-          if (typeof x === 'string') {
-            eui = x
-          } else {
-            throw new Error(
-              `could not extract target eui from ${config.targetEUI}`,
-            )
-          }
-          break
-        }
-        case 'eui':
-          eui = config.targetEUI as string
-      }
+    this.originatorEUI = extractEUI(
+      RED,
+      config.originatorEUI,
+      config.originatorEUI_type,
+      'payload.originatorEUI',
+      this,
+      showWarning,
+    )
 
-      return normaliseEUI(eui)
-        .toString()
-        .replace(/([0-9a-fA-F]{2}(?!$))/g, '$1-')
-    }
+    this.targetEUI = extractEUI(
+      RED,
+      config.targetEUI,
+      config.targetEUI_type,
+      'payload.targetEUI',
+      this,
+      showWarning,
+    )
 
     /* validation on node deploy of tariff body */
     if (
@@ -121,59 +95,54 @@ export = function (RED: NodeAPI) {
     }
 
     this.on('input', (msg, send, done) => {
-      let input = this.input(msg)
-
-      if (input === undefined) {
-        done(new Error('input tariff missing'))
-        return
-      }
-
-      if (typeof input === 'string') {
-        let t: unknown
-        try {
-          t = JSON.parse(input)
-          if (typeof t === 'object' && t !== null) {
-            input = t
-          } else {
-            done(new Error('could not parse input tariff json'))
-            return
+      Promise.all([this.originatorEUI(msg), this.targetEUI(msg)])
+        .then(([originatorId, targetId]) => {
+          if (originatorId === undefined) {
+            return Promise.reject(new Error('originatorId missing'))
           }
-        } catch (e) {
+          if (targetId === undefined) {
+            return Promise.reject(new Error('tagetId missing'))
+          }
+          return [originatorId, targetId]
+        })
+        .then(([originatorId, targetId]) => {
+          let input = this.input(msg)
+
+          if (input === undefined) {
+            throw new Error('input tariff missing')
+          }
+
+          if (typeof input === 'string') {
+            const t = JSON.parse(input)
+            if (typeof t === 'object' && t !== null) {
+              input = t
+            } else {
+              throw new Error('could not parse input tariff json')
+            }
+          }
+
+          if (!isTariff(input)) {
+            throw new Error('invalid tariff entered')
+          }
+
+          const requestId: RequestId<bigint> = {
+            counter: BigInt(0),
+            originatorId,
+            targetId,
+          }
+
+          const sd = buildUpdateImportTariff_PrimaryElement(input, requestId)
+          this.output(msg, sd)
+          send(msg)
+        })
+        .catch((e) => {
           if (e instanceof Error) {
             done(e)
           } else {
-            done(new Error('unknown error while parsing json'))
+            console.error('unknown error', e)
+            done(new Error('unknown error processing tariff'))
           }
-          return
-        }
-      }
-
-      if (!isTariff(input)) {
-        done(new Error('invalid tariff entered'))
-        return
-      }
-
-      const originatorId = this.originatorEUI(msg)
-      if (originatorId === undefined) {
-        done(new Error('originatorId missing'))
-        return
-      }
-
-      const targetId = this.targetEUI(msg)
-      if (targetId === undefined) {
-        done(new Error('targetId missing'))
-        return
-      }
-
-      const requestId: RequestId<bigint> = {
-        counter: BigInt(0),
-        originatorId,
-        targetId,
-      }
-
-      const sd = buildUpdateImportTariff_PrimaryElement(input, requestId)
-      this.output(msg, sd)
-      send(msg)
+        })
     })
   }
   RED.nodes.registerType('duis-tariff', DuisTariff)

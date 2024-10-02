@@ -26,9 +26,9 @@ export interface Properties {
   input_type: 'msg' | 'example'
   output?: string
   originatorEUI?: string
-  originatorEUI_type: 'msg' | 'eui'
+  originatorEUI_type: 'msg' | 'eui' | 'flow' | 'global'
   targetEUI?: string
-  targetEUI_type: 'msg' | 'eui'
+  targetEUI_type: 'msg' | 'eui' | 'flow' | 'global'
   deafultName?: string
 }
 
@@ -36,6 +36,6 @@ export interface Node extends RedNode {
   tariffBody?: Tariff
   input: (msg: NodeMessage) => string | object | undefined
   output: (msg: NodeMessage, value: unknown) => void
-  originatorEUI: (msg: NodeMessage) => string | undefined
-  targetEUI: (msg: NodeMessage) => string | undefined
+  originatorEUI: (msg: NodeMessage) => Promise<string | undefined>
+  targetEUI: (msg: NodeMessage) => Promise<string | undefined>
 }

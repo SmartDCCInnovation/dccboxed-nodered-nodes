@@ -144,15 +144,15 @@ RED.nodes.registerType<ENT>('duis-tariff', {
     enabled() {
       return (
         this.input_type === 'example' &&
-        this.originatorEUI_type === 'eui' &&
-        this.targetEUI_type === 'eui'
+        this.originatorEUI_type !== 'msg' &&
+        this.targetEUI_type !== 'msg'
       )
     },
     visible() {
       return (
         this.input_type === 'example' &&
-        this.originatorEUI_type === 'eui' &&
-        this.targetEUI_type === 'eui'
+        this.originatorEUI_type !== 'msg' &&
+        this.targetEUI_type !== 'msg'
       )
     },
     onclick(this: EditorNodeInstance<Properties & EditorNodeProperties>) {
@@ -223,16 +223,8 @@ RED.nodes.registerType<ENT>('duis-tariff', {
       })
       .on('change', (event, type, value) => {
         if (type === 'msg') {
-          $('#node-input-originatorEUI,#node-input-targetEUI').typedInput(
-            'types',
-            ['msg', typedInputEUI],
-          )
           $('.duis-tariff-tariffBody-container').addClass('duis-tariff-hidden')
         } else {
-          $('#node-input-originatorEUI,#node-input-targetEUI').typedInput(
-            'types',
-            [typedInputEUI],
-          )
           $('.duis-tariff-tariffBody-container').removeClass(
             'duis-tariff-hidden',
           )
@@ -257,7 +249,7 @@ RED.nodes.registerType<ENT>('duis-tariff', {
     ;['originator', 'target'].forEach((s) => {
       $(`#node-input-${s}EUI`).typedInput({
         default: 'eui',
-        types: ['msg', typedInputEUI],
+        types: ['msg', typedInputEUI, 'flow', 'global'],
         typeField: $(`#node-input-${s}EUI_type`),
       })
     })
