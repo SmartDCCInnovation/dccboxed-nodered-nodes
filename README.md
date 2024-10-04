@@ -241,6 +241,21 @@ service request and the second node will receive all device alerts.
 
 ![dccboxed-receive filter device alerts](images/dccboxed-receive-config-alert.png)
 
+#### Node `duis-tariff`
+
+Provides an alternative to the `duis-template` node for building ESME (single
+element) SRV 1.1.1 commands. Offers a slightly simplified option for specifying
+a JSON tariff. For more information about the input of this node see
+[`duis-templates`][duis-templates].
+
+The node comes pre-configured with 3 example tariffs:
+
+  * `TOU (simple)` - A single rate tariff.
+  * `TOU (complex)` - A TOU tariff with multiple day profiles and special days.
+  * `Block` - A sample block tariff.
+
+Or alternatively, the tariff can be provided through its input connector.
+
 ### Advanced
 
 The above high level nodes automate the sending and receiving of DUIS requests
