@@ -223,22 +223,54 @@ RED.nodes.registerType<ENT>('duis-tariff', {
       })
       .on('change', (event, type, value) => {
         if (type === 'msg') {
-          $('.duis-tariff-tariffBody-container').addClass('duis-tariff-hidden')
+          $('.duis-tariff-tariffBody-container,.duis-tariff-simple').addClass(
+            'duis-tariff-hidden',
+          )
         } else {
           $('.duis-tariff-tariffBody-container').removeClass(
             'duis-tariff-hidden',
           )
-
+          $('.duis-tariff-simple').addClass('duis-tariff-hidden')
           if (this.editor && value in examples) {
+            const editor = this.editor
             this.tariffBodyOriginal = examples[value]
-            if (
-              !firstLoad ||
-              (firstLoad && this.editor.getValue().trim() === '')
-            ) {
-              this.editor.setValue(JSON.stringify(examples[value], null, 4))
+            if (!firstLoad || (firstLoad && editor.getValue().trim() === '')) {
+              editor.setValue(JSON.stringify(examples[value], null, 4))
             }
             firstLoad = false
             resizeConfigPane.call(this)
+
+            let tariff: unknown
+            try {
+              tariff = JSON.parse(editor.getValue())
+            } catch {
+              /* silent ignore  */
+            }
+            if (
+              type === 'example' &&
+              value === 'TOU (simple)' &&
+              isValidTariff(tariff)
+            ) {
+              $('.duis-tariff-tariffBody-container').addClass(
+                'duis-tariff-hidden',
+              )
+              $('.duis-tariff-simple').removeClass('duis-tariff-hidden')
+
+              $('#node-input-kwhrate')
+                .val(tariff.tous[0] ?? 0)
+                .off('change')
+                .on('change', (e) => {
+                  tariff.tous[0] = Number($(e.target).val())
+                  editor.setValue(JSON.stringify(tariff, null, 4))
+                })
+              $('#node-input-standingcharge')
+                .val(tariff.pricing.standingCharge)
+                .off('change')
+                .on('change', (e) => {
+                  tariff.pricing.standingCharge = Number($(e.target).val())
+                  editor.setValue(JSON.stringify(tariff, null, 4))
+                })
+            }
           }
         }
       })
@@ -290,9 +322,8 @@ RED.nodes.registerType<ENT>('duis-tariff', {
   oneditsave: function () {
     if (this.editor) {
       if (
-        (this.tariffBodyOriginal !== undefined &&
-          defEquality(this.editor.getValue(), this.tariffBodyOriginal)) ||
-        $('#node-input-minimal').is(':not(:checked)')
+        this.tariffBodyOriginal !== undefined &&
+        defEquality(this.editor.getValue(), this.tariffBodyOriginal)
       ) {
         $('#node-input-tariffBody').val('')
       } else {

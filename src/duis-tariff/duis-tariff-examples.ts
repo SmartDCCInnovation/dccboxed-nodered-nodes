@@ -20,7 +20,69 @@
 import type { Tariff } from '@smartdcc/duis-templates'
 
 export const examples: Record<string, Tariff> = {
-  TOU: {
+  'TOU (simple)': {
+    seasons: [
+      {
+        name: 'all',
+        year: 2024,
+        month: 1,
+        dayOfMonth: 1,
+        weekProfile: 1,
+      },
+    ],
+    weekProfiles: [[1, 1, 1, 1, 1, 1, 1]],
+    dayProfiles: [
+      [
+        {
+          mode: 'tou',
+          startTime: 0,
+          action: 1,
+        },
+      ],
+    ],
+    specialDays: [],
+    tous: [52],
+    blocks: [
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+      {
+        prices: [0, 0],
+        thresholds: [4294967295],
+      },
+    ],
+    pricing: {
+      priceScale: -2,
+      standingCharge: 48,
+      standingChargeScale: -2,
+    },
+  },
+  'TOU (complex)': {
     seasons: [
       {
         name: 'winter',

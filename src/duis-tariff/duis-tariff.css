@@ -28,7 +28,7 @@
 }
 
 .duis-tariff-hidden {
-  visibility: hidden;
+  display: none;
 }
 
 .duis-tariff-invalid {
