@@ -196,6 +196,7 @@ export = function (RED: NodeAPI) {
               sd.body.ResponseMessage.GBCSPayload,
               (eui, type, options) =>
                 ServerKeyStore(this.server, RED, eui, type, options),
+              '90 B3 D5 1F 30 00 00 02',
             )
               .then((gbcs) => {
                 const mgbcs = minimizeMessage(gbcs)
@@ -224,6 +225,7 @@ export = function (RED: NodeAPI) {
               sd.body.ResponseMessage.FutureDatedDeviceAlertMessage.GBCSPayload,
               (eui, type, options) =>
                 ServerKeyStore(this.server, RED, eui, type, options),
+              '90 B3 D5 1F 30 00 00 02',
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))
@@ -242,6 +244,7 @@ export = function (RED: NodeAPI) {
               sd.body.DeviceAlertMessage.GBCSPayload,
               (eui, type, options) =>
                 ServerKeyStore(this.server, RED, eui, type, options),
+              '90 B3 D5 1F 30 00 00 02',
             )
               .then((gbcs) => {
                 go(_msg, minimizeMessage(gbcs))

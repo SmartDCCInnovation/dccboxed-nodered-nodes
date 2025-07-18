@@ -19,7 +19,11 @@
 
 import type { EditorRED, EditorNodeProperties } from 'node-red'
 import type { KeyDefinition, Properties } from '../gbcs-parser.properties'
-import { settingsLow as settings } from '../editor-global-settings'
+import {
+  euiValidator,
+  settingsLow as settings,
+  typedInputEUI,
+} from '../editor-global-settings'
 
 import './gbcs-parser.css'
 
@@ -55,6 +59,11 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
       required: true,
     },
     output: { value: 'payload.gbcs', required: true },
+    acbEui: {
+      value: '90-B3-D5-1F-30-00-00-02',
+      required: true,
+      validate: euiValidator(() => 'eui'),
+    },
   },
   inputs: 1,
   outputs: 1,
@@ -110,7 +119,6 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
           class: 'g1',
         })
           .attr('id', `node-input-key-type-${index}`)
-          .val(data?.type ?? 'certificate')
           .appendTo(row3)
         ;[
           { val: 'certificate', text: 'X509 Certificate (PEM)' },
@@ -118,11 +126,12 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
         ].forEach(({ val, text }) =>
           $('<option></option>').val(val).text(text).appendTo(typeField),
         )
+        typeField.val(data?.type ?? 'certificate')
+
         const usageField = $('<select/>', {
           class: 'g1',
         })
           .attr('id', `node-input-key-usage-${index}`)
-          .val(data?.usage ?? 'DS')
           .appendTo(row3)
         ;[
           { val: 'DS', text: 'Digital Signature' },
@@ -130,6 +139,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
         ].forEach(({ val, text }) =>
           $('<option></option>').val(val).text(text).appendTo(usageField),
         )
+        usageField.val(data?.usage ?? 'DS')
 
         $('<label/>')
           .attr('for', `node-input-key-content-${index}`)
@@ -161,6 +171,10 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('gbcs-parser', {
     this.keys?.forEach((keyDef) =>
       $('#node-input-key-container').editableList('addItem', keyDef),
     )
+    $('#node-input-acbEui').typedInput({
+      default: 'eui',
+      types: [typedInputEUI],
+    })
   },
   oneditsave(this) {
     const node = this

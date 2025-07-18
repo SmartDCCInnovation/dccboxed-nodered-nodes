@@ -27,9 +27,11 @@ export type { KeyDefinition } from './gbcs-node.properties'
 export interface Properties extends GBCSNodeProperties {
   input: string
   output: string
+  acbEui: string
 }
 
 export interface GbcsParserNode extends GbcsNode {
   input: (msg: NodeMessage) => unknown
   output: (msg: NodeMessage, value: unknown) => void
+  acbEui: () => string | undefined
 }
