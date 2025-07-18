@@ -23,6 +23,7 @@ import type { NodeDef, NodeAPI } from 'node-red'
 import type { GbcsParserNode, Properties } from './gbcs-parser.properties'
 import { bootstrap } from './gbcs-node.common'
 import { setMessageProperty } from './util'
+import { normaliseEUI } from '@smartdcc/dccboxed-keystore'
 
 export = function (RED: NodeAPI) {
   function GbcsParser(this: GbcsParserNode, config: Properties & NodeDef) {
@@ -37,6 +38,19 @@ export = function (RED: NodeAPI) {
     }
     this.output = setMessageProperty(RED, config.output, 'payload.gbcs')
 
+    {
+      const { acbEui } = config
+      this.acbEui = () => {
+        try {
+          return normaliseEUI(acbEui)
+            .toString()
+            .replace(/([0-9a-fA-F]{2}(?!$))/g, '$1-')
+        } catch {
+          return undefined
+        }
+      }
+    }
+
     this.on('input', (msg, send, done) => {
       const maybePayload = this.input(msg)
       let payload: string
@@ -48,7 +62,7 @@ export = function (RED: NodeAPI) {
         done(new Error('payload must be string or buffer'))
         return
       }
-      parseGbcsMessage(payload, this.keyStore)
+      parseGbcsMessage(payload, this.keyStore, this.acbEui())
         .then((b) => {
           this.output(msg, minimizeMessage(b))
           send(msg)
