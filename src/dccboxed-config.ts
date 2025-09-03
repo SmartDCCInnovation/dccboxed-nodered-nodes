@@ -17,11 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { NodeDef, NodeAPI, NodeMessage } from 'node-red'
+import type { NodeDef, NodeMessage, NodeAPI, NodeContext } from 'node-red'
 
 import type {
   ConfigNode,
   DspEndpoint,
+  Headers,
   MessageStore,
   Properties,
   WSMessageDTO,
@@ -38,7 +39,11 @@ import {
   SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
 import { EventEmitter } from 'node:events'
-import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
+import {
+  BoxedKeyStore,
+  resolveHeaders,
+  Headers as KeyStoreHeaders,
+} from '@smartdcc/dccboxed-keystore'
 import got from 'got'
 import { parse as contentType } from 'content-type'
 import { inspect } from 'node:util'
@@ -50,6 +55,19 @@ const endpoints: Record<DspEndpoint, string> = {
   'Non-Device Service': '/api/v1/serviceD',
   'Send Command Service': '/api/v1/serviceS',
   'Transform Service': '/api/v1/serviceT',
+}
+
+function buildHeaders(headers: Headers, context: NodeContext): KeyStoreHeaders {
+  return Object.fromEntries(
+    Object.entries(headers).map(([name, header]) => [
+      name,
+      header.type === 'global'
+        ? () => {
+            return context.global.get(header.value) as string
+          }
+        : header.value,
+    ]),
+  )
 }
 
 export = function (RED: NodeAPI) {
@@ -65,11 +83,22 @@ export = function (RED: NodeAPI) {
     }
     usedEndpoints.push(config.responseEndpoint)
 
+    this.smkiHeaders = buildHeaders(
+      this.config.smkiHeaders ?? {},
+      this.context(),
+    )
+    this.duisHeaders = buildHeaders(
+      this.config.duisHeaders ?? {},
+      this.context(),
+    )
+
     BoxedKeyStore.new(
-      config.host,
+      `${this.config.smkiTls ? 'https' : 'http'}://${this.config.host}:${this.config.smkiPort || 8083}`,
       (config.localKeyStore?.length ?? 0) > 1
         ? config.localKeyStore
         : undefined,
+      undefined,
+      this.smkiHeaders,
     )
       .then((ks) => {
         this.keyStore = ks
@@ -117,10 +146,12 @@ export = function (RED: NodeAPI) {
       await status(`${endpoint}: requesting`)
 
       const response = await got(
-        `http://${this.config.host}:${this.config.port}${endpoints[endpoint]}`,
+        `${this.config.duisTls ? 'https' : 'http'}://${this.config.host}:${this.config.port || 8079}${endpoints[endpoint]}`,
         {
           timeout: { request: 3000 },
-          headers: { 'Content-Type': 'application/xml' },
+          headers: await resolveHeaders(this.duisHeaders, {
+            'Content-Type': 'application/xml',
+          }),
           method: 'POST',
           body: signedXml,
           throwHttpErrors: true,

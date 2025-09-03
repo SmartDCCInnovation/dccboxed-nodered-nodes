@@ -1,7 +1,7 @@
 <!--
  Created on Tue Aug 16 2022
 
- Copyright (c) 2022 Smart DCC Limited
+ Copyright (c) 2025 Smart DCC Limited
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -26,9 +26,61 @@
   </div>
   <div class="form-row">
     <label for="node-config-input-port"
-      ><i class="fa fa-bookmark"></i> Port</label
+      ><i class="fa fa-bookmark"></i> DUIS Port</label
     >
-    <input type="text" id="node-config-input-port" />
+    <input type="text" id="node-config-input-port" placeholder="e.g. 8079" />
+  </div>
+  <div class="form-row">
+    <label></label>
+    <input
+      type="checkbox"
+      id="node-config-input-duisTls"
+      style="display: inline-block; width: auto; vertical-align: top;"
+    />
+    <label for="node-config-input-duisTls" style="width: 70%;"
+      >Enable TLS (DUIS)</label
+    >
+  </div>
+  <div class="form-row">
+    <label
+      class="dccboxed-config-hanging-indent"
+      for="node-input-duisheader-container"
+      ><i class="fa fa-list"></i> <span> Extra DUIS Headers</span></label
+    >
+    <div class="dccboxed-config-inline-editlist" style="width: 70%;">
+      <ol id="node-input-duisheader-container" class="header-container"></ol>
+    </div>
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-smkiport"
+      ><i class="fa fa-bookmark"></i> SMKI Port</label
+    >
+    <input
+      type="text"
+      id="node-config-input-smkiPort"
+      placeholder="e.g. 8083"
+    />
+  </div>
+  <div class="form-row">
+    <label></label>
+    <input
+      type="checkbox"
+      id="node-config-input-smkiTls"
+      style="display: inline-block; width: auto; vertical-align: top;"
+    />
+    <label for="node-config-input-smkiTls" style="width: 70%;"
+      >Enable TLS (SMKI)</label
+    >
+  </div>
+  <div class="form-row">
+    <label
+      class="dccboxed-config-hanging-indent"
+      for="node-input-smkiheader-container"
+      ><i class="fa fa-list"></i> <span> Extra SMKI Headers</span></label
+    >
+    <div class="dccboxed-config-inline-editlist" style="width: 70%;">
+      <ol id="node-input-smkiheader-container" class="header-container"></ol>
+    </div>
   </div>
   <div class="form-row">
     <label for="node-config-input-responseEndpoint"

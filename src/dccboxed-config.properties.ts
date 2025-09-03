@@ -17,13 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+export interface HeaderDef {
+  type: string
+  value: string
+}
+
+export interface Headers {
+  [name: string]: HeaderDef
+}
+
 export interface Properties {
   host: string
-  port: number
+  port: string /* duis: 8079 */
+  duisTls: boolean /* false */
+  smkiPort: string /* smki: 8083 */
+  smkiTls: boolean /* false */
   responseEndpoint: string
   localKeyStore?: string
   loggerType: string
   logger?: string
+  duisHeaders: Headers
+  smkiHeaders: Headers
 }
 
 import type {
@@ -32,7 +46,10 @@ import type {
   SimplifiedDuisOutputResponse,
 } from '@smartdcc/duis-parser'
 import { EventEmitter } from 'node:events'
-import { BoxedKeyStore } from '@smartdcc/dccboxed-keystore'
+import {
+  BoxedKeyStore,
+  Headers as KeyStoreHeaders,
+} from '@smartdcc/dccboxed-keystore'
 import type { Node, NodeMessage } from 'node-red'
 import type { FileHandle } from 'node:fs/promises'
 
@@ -72,6 +89,8 @@ export interface ConfigNode extends Node {
   logger: (msg: string) => void | Promise<void>
   logfile?: FileHandle
   publish: (nodeId: string, body: WSMessageBody) => void
+  duisHeaders: KeyStoreHeaders
+  smkiHeaders: KeyStoreHeaders
 }
 
 export interface WSMessageNotification {
