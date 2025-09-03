@@ -55,11 +55,12 @@ layer, e.g. configuring devices or automating business processes.
 ## Usage
 
 Ensure you are using Node 16x or later. This is because some of the nodes rely
-on features in the `crypto` library of Node 16x.
+on features in the `crypto` library of Node 16x. However Node 20x or later is
+recommended as this is used in the development environment.
 
 If you have not already, install [*Node-RED*][nodered]. The below assumes that
 *Node-RED* is installed globally and not running in a sandbox/docker. The nodes
-in the project are developed and tested against version 3.0.2 of *Node-RED*.
+in the project are developed and tested against version 3.1.0 of *Node-RED*.
 
 Install `@smartdcc/dccboxed-nodered-nodes` package into *Node-RED*'s palette
 using the [standard process][palette]. See below image for an example of
@@ -184,6 +185,10 @@ DCC&nbsp;Boxed could be configured as follows (assuming a default value of
 `/smartdcc/duis` in the *Response* field):
 
 ![dccboxed duis response address](images/dccboxed-config-response.png)
+
+There are advanced options relating to TLS and extra headers. These are provided
+to allow DCC&nbsp;Boxed to be placed behind a reverse proxy that performs
+authentication on the request.
 
 #### Node `dccboxed-send`
 
@@ -334,7 +339,7 @@ Any contributions will be expected to be licensable under GPLv3.
 
 ## Other Info
 
-Copyright 2022, Smart DCC Limited, All rights reserved. Project is licensed
+Copyright 2025, Smart DCC Limited, All rights reserved. Project is licensed
 under GPLv3.
 
 [duis]: https://smartenergycodecompany.co.uk/the-smart-energy-code-2/ "Smart Energy Code"

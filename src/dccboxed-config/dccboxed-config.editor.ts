@@ -1,7 +1,7 @@
 /*
  * Created on Tue Aug 16 2022
  *
- * Copyright (c) 2022 Smart DCC Limited
+ * Copyright (c) 2025 Smart DCC Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,14 @@ import type {
   EditorNodeProperties,
   EditorNodeInstance,
 } from 'node-red'
-import type { Properties, WSMessageDTO } from '../dccboxed-config.properties'
+import type {
+  HeaderDef,
+  Headers,
+  Properties,
+  WSMessageDTO,
+} from '../dccboxed-config.properties'
+
+import './dccboxed-config.css'
 
 declare const RED: EditorRED
 
@@ -102,10 +109,21 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
       value: '1.2.3.4',
       required: true,
       validate: RED.validators.regex(
-        /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/,
+        /(?=^.{4,253}$)^((((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63})|(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}))$/,
       ),
     },
-    port: { value: 8079, required: true, validate: RED.validators.number() },
+    port: {
+      value: '8079',
+      required: false,
+      validate: RED.validators.number(true),
+    },
+    smkiPort: {
+      value: '8083',
+      required: false,
+      validate: RED.validators.number(true),
+    },
+    duisTls: { value: false, required: true },
+    smkiTls: { value: false, required: true },
     responseEndpoint: {
       value: '/smartdcc/duis',
       required: true,
@@ -129,9 +147,23 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
     },
     logger: { value: undefined },
     loggerType: { value: 'stdout', required: true },
+    duisHeaders: { value: {}, required: false },
+    smkiHeaders: { value: {}, required: false },
   },
   label: function () {
-    return this.name ?? `${this.host}:${this.port}`
+    if (typeof this.name === 'string' && this.name !== '') {
+      return this.name
+    }
+
+    let name = this.host
+    if (this.port) {
+      name = `${this.host}:${this.port}`
+    }
+
+    if (this.duisTls) {
+      name = `${name} (TLS)`
+    }
+    return name
   },
   oneditprepare() {
     $('#node-config-input-logger').typedInput({
@@ -156,6 +188,105 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
         },
       ],
       typeField: '#node-config-input-loggerType',
+    })
+    ;(
+      [
+        ['duis', this.duisHeaders],
+        ['smki', this.smkiHeaders],
+      ] as Array<[string, Headers]>
+    ).forEach(([e, h]) => {
+      $(`#node-input-${e}header-container`).editableList({
+        addItem(row, index, data: [string, HeaderDef]) {
+          const row1 = $('<div/>', {
+            class: 'dccboxed-config-header-row form-row',
+          }).appendTo(row)
+          const row2 = $('<div/>', {
+            class: 'dccboxed-config-header-row form-row',
+          }).appendTo(row)
+
+          $('<label/>')
+            .attr('for', `node-input-${e}header-name-${index}`)
+            .html('<i class="fa fa-tag"></i> Name')
+            .appendTo(row1)
+          $('<input/>', { class: 'header-single-input' })
+            .attr('type', 'text')
+            .attr('id', `node-input-${e}header-name-${index}`)
+            .attr('placeholder', 'e.g. X-Authenticate')
+            .prop('required', true)
+            .val(data?.[0] ?? '')
+            .appendTo(row1)
+
+          $('<label/>')
+            .attr('for', `node-input-${e}header-value-${index}`)
+            .html('<i class="fa fa-tag"></i> Value')
+            .appendTo(row2)
+          $('<input/>', { class: 'header-single-input' })
+            .attr('type', 'text')
+            .attr('id', `node-input-${e}header-value-${index}`)
+            .attr('placeholder', 'e.g. SuperSecretAPIKey')
+            .prop('required', true)
+            .val(data?.[1]?.value ?? '')
+            .appendTo(row2)
+          $('<input/>')
+            .attr('type', 'hidden')
+            .attr('id', `node-input-${e}header-value_type-${index}`)
+            .val(data?.[1]?.type ?? 'str')
+            .appendTo(row2)
+
+          $(`#node-input-${e}header-value-${index}`).typedInput({
+            default: 'str',
+            types: ['str', 'global'],
+            typeField: $(`#node-input-${e}header-value_type-${index}`),
+          })
+          $(`#node-input-${e}header-value-${index}`).typedInput('width', 'auto')
+          $(
+            `#node-input-${e}header-value-${index} ~ div input[type=text]`,
+          ).attr('size', '1')
+        },
+        addButton: true,
+        removable: true,
+      })
+
+      if (h) {
+        Object.entries(h).forEach(([name, val]) => {
+          $(`#node-input-${e}header-container`).editableList('addItem', [
+            name,
+            val,
+          ])
+        })
+      }
+    })
+    $('#node-input-duisheader-container,#node-input-smkiheader-container')
+      .parent()
+      .attr('width', 'auto')
+      .css('max-height', '15em')
+  },
+  oneditsave() {
+    this.duisHeaders = {}
+    this.smkiHeaders = {}
+    ;(
+      [
+        ['duis', this.duisHeaders],
+        ['smki', this.smkiHeaders],
+      ] as Array<[string, Headers]>
+    ).forEach(([e, h]) => {
+      $(`#node-input-${e}header-container`)
+        .editableList('items')
+        .each(function () {
+          const itemRoot = $(this)
+          const headerName: string = itemRoot
+            .find(`[id^=node-input-${e}header-name]`)
+            .val() as string
+          const headerDef: HeaderDef = {
+            type: itemRoot
+              .find(`[id^=node-input-${e}header-value_type-]`)
+              .val() as 'str' | 'global',
+            value: itemRoot
+              .find(`[id^=node-input-${e}header-value-]`)
+              .val() as string,
+          }
+          h[headerName] = headerDef
+        })
     })
   },
   onpaletteadd() {

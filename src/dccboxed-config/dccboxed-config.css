@@ -1,0 +1,43 @@
+/*
+ * Created on Tue Jul 24 2025
+ *
+ * Copyright (c) 2025 Smart DCC Limited
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+.dccboxed-config-inline-editlist {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.dccboxed-config-header-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.dccboxed-config-header-row > label {
+  width: 5em !important;
+}
+
+.dccboxed-config-header-row > .header-single-input,
+.dccboxed-config-header-row > .header-single-input ~ div {
+  flex-grow: 1;
+}
+
+label.dccboxed-config-hanging-indent {
+  padding-left: 16px;
+  text-indent: -9px;
+  width: calc(100px - 16px) !important;
+}
