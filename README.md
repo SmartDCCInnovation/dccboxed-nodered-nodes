@@ -261,6 +261,38 @@ The node comes pre-configured with 3 example tariffs:
 
 Or alternatively, the tariff can be provided through its input connector.
 
+#### Node `gbcs-utrn`
+
+The `gbcs-utrn` generates a valid SMETS2 Unique Transaction Reference Number
+(UTRN). These are 20 digit code used for prepayment TopUp. This node can be
+used in isolation to generate the UTRN and then manually enter it onto the meter
+to it can be combined with a the DUIS request *SRV 2.2* to non-interactively
+apply the TopUp.
+
+When running `gbcs-utrn` in isolation, so it is possible to input the UTRN on
+the meter the following is the recommended configuration:
+
+![gbcs-utrn standalone properties](images/gbcs-utrn-properties.png)
+
+Note, the counter value is specified (and will automatically increment every
+time a UTRN is generated). This is important due to the way which UTRNs are
+constructed and the device needs to infer the counter value to validate the
+UTRN.
+
+However, if you only intend to generate a UTRN and apply it with a *SRV 2.2*
+then its possible to use EPOCH as the counter value. In which case, the
+following is the recommended configuration when used inline with a *SRV 2.2*:
+
+![gbcs-utrn inline properties](images/gbcs-utrn-properties-cs01a.png)
+
+As the node directly updates parts of the *SRV 2.2* DUIS request, it should be
+connected as follows:
+
+![gbcs-utrn inline connection](images/gbcs-utrn-inline.png)
+
+The precise meaning of the inputs to a UTRN is defined within the GBCS
+documentation.
+
 ### Advanced
 
 The above high level nodes automate the sending and receiving of DUIS requests
