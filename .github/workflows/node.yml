@@ -138,7 +138,7 @@ jobs:
     - name: Run tests
       run: npm run test:cov
     - name: Upload coverage to Codecov
-      if: matrix.node == '16' && (github.event_name != 'push' || github.ref_type != 'tag' || !startsWith(github.ref_name, 'v'))
+      if: matrix.node == '20' && (github.event_name != 'push' || github.ref_type != 'tag' || !startsWith(github.ref_name, 'v'))
       uses: codecov/codecov-action@v5
 
   release:
@@ -153,10 +153,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - name: Set up NodeJS 16
+    - name: Set up NodeJS 20
       uses: actions/setup-node@v6
       with:
-        node-version: 16
+        node-version: 20
     - name: Install dependencies
       run: npm ci
     - name: Build package
