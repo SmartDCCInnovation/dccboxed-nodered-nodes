@@ -54,7 +54,7 @@ layer, e.g. configuring devices or automating business processes.
 
 ## Usage
 
-Ensure you are using Node 16x or later. This is because some of the nodes rely
+Ensure you are using Node 20x or later. This is because some of the nodes rely
 on features in the `crypto` library of Node 16x. However Node 20x or later is
 recommended as this is used in the development environment.
 
