@@ -54,8 +54,8 @@ layer, e.g. configuring devices or automating business processes.
 
 ## Usage
 
-Ensure you are using Node 20x or later. This is because some of the nodes rely
-on features in the `crypto` library of Node 16x. However Node 20x or later is
+Ensure you are using Node 24x or later. This is because some of the nodes rely
+on features in the `crypto` library of Node 16x. However Node 24x or later is
 recommended as this is used in the development environment.
 
 If you have not already, install [*Node-RED*][nodered]. The below assumes that
