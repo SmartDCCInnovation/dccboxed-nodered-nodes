@@ -55,7 +55,7 @@
   "dependencies": {
     "@smartdcc/dccboxed-keystore": "^0.3.2",
     "@smartdcc/duis-parser": "^0.6.0",
-    "@smartdcc/duis-sign-wrap": "^0.2.0",
+    "@smartdcc/duis-sign-wrap": "^0.3.0",
     "@smartdcc/duis-templates": "^0.6.0",
     "@smartdcc/gbcs-parser": "^0.4.0",
     "@ungap/structured-clone": "^1.0.1",
