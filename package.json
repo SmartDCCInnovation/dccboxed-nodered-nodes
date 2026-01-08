@@ -1,6 +1,6 @@
 {
   "name": "@smartdcc/dccboxed-nodered-nodes",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Collection of nodes for NodeRED to facilitate interfacing with DCC Boxed",
   "type": "commonjs",
   "scripts": {
