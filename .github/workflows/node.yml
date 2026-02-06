@@ -27,9 +27,9 @@ jobs:
       id: get-reporter
       run: |
         if test "${{ github.event_name }}" = "pull_request"; then
-          echo "::set-output name=reporter::github-pr-review"
+          echo "reporter=github-pr-review" >> "$GITHUB_OUTPUT"
         else
-          echo "::set-output name=reporter::github-check"
+          echo "reporter=github-check" >> "$GITHUB_OUTPUT"
         fi
     - name: Run prettier with reviewdog
       uses: kazkansouh/reviewdog-action-prettier@v1
@@ -56,9 +56,9 @@ jobs:
       id: get-reporter
       run: |
         if test "${{ github.event_name }}" = "pull_request"; then
-          echo "::set-output name=reporter::github-pr-review"
+          echo "reporter=github-pr-review" >> "$GITHUB_OUTPUT"
         else
-          echo "::set-output name=reporter::github-check"
+          echo "reporter=github-check" >> "$GITHUB_OUTPUT"
         fi
     - name: Set up NodeJS 24
       uses: actions/setup-node@v6
@@ -129,9 +129,9 @@ jobs:
       id: get-reporter
       run: |
         if test "${{ github.event_name }}" = "pull_request"; then
-          echo "::set-output name=reporter::github-pr-review"
+          echo "reporter=github-pr-review" >> "$GITHUB_OUTPUT"
         else
-          echo "::set-output name=reporter::github-check"
+          echo "reporter=github-check" >> "$GITHUB_OUTPUT"
         fi
     - name: Set up NodeJS ${{ matrix.node }}
       uses: actions/setup-node@v6
