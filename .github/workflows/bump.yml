@@ -43,5 +43,6 @@ jobs:
 
       - name: Push changes
         run: |
+          git commit --amend -m "maint: bump ${{ inputs.version }} ${{ steps.bump.outputs.version }}"
           git push origin main
           git push origin v${{ steps.bump.outputs.version }}
