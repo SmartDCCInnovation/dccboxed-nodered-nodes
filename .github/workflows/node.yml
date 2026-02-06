@@ -157,6 +157,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        fetch-tags: true
     - name: Set up NodeJS 24
       uses: actions/setup-node@v6
       with:
@@ -180,6 +183,21 @@ jobs:
           echo "Error: tag ${{ github.ref_name }} and package version ${version} do not match" 1>&2
           exit 1
         fi
+    - name: Extract change log
+      id: get-log
+      run: |
+        set -x
+        previousRelease=$(gh release view --json tagName --jq .tagName)
+        echo "Previous release: ${previousRelease}"
+        git tag
+        log=$(git log '--pretty=format:- %s' --invert-grep --grep '^\(build\|maint: bump\)' ${previousRelease}..${{ github.sha }})
+        log="${log//'%'/'%25'}"                               # Multiline escape sequences for %
+        log="${log//$'\n'/'%0A'}"                             # Multiline escape sequences for '\n'
+        log="${log//$'\r'/'%0D'}"                             # Multiline escape sequences for '\r'
+        echo "Changelog: ${log}"
+        echo "log=$log" >> "$GITHUB_OUTPUT"
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
@@ -188,6 +206,9 @@ jobs:
         file_glob: true
         tag: ${{ github.ref }}
         overwrite: true
-        body: "Release ${{ github.ref_name }}"
+        body: |
+          **Changelog: ${{ github.ref_name }}**
+
+          ${{ steps.get-log.outputs.log }}
     - name: Publish to NPM
       run: npm publish
