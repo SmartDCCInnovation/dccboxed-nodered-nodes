@@ -1,7 +1,7 @@
 /*
  * Created on Tue Aug 16 2022
  *
- * Copyright (c) 2022 Smart DCC Limited
+ * Copyright (c) 2026 Smart DCC Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import type {
 
 import * as bodyParser from 'body-parser'
 import { signDuis, validateDuis } from '@smartdcc/duis-sign-wrap'
+import { setLogger } from '@smartdcc/duis-sign-wrap/dist/server'
 import {
   constructDuis,
   isSimplifiedDuisOutputResponse,
@@ -73,6 +74,10 @@ function buildHeaders(headers: Headers, context: NodeContext): KeyStoreHeaders {
 export = function (RED: NodeAPI) {
   const usedEndpoints: string[] = []
 
+  setLogger((msg) => {
+    RED.log.info(msg.trimEnd())
+  })
+
   function ConfigConstruct(this: ConfigNode, config: Properties & NodeDef) {
     RED.nodes.createNode(this, config)
     this.config = config
@@ -91,6 +96,26 @@ export = function (RED: NodeAPI) {
       this.config.duisHeaders ?? {},
       this.context(),
     )
+
+    this.signHeaders = buildHeaders(
+      this.config.signHeaders ?? {},
+      this.context(),
+    )
+
+    this.signBackend =
+      config.signType === 'builtin' && config.signURL === 'daemon'
+    if (config.signType === 'custom') {
+      const u = new URL(config.signURL)
+      if (u !== null) {
+        this.signBackend = u
+      } else {
+        this.warn(`invalid sign backend url provided: ${config.signURL}`)
+      }
+    }
+    RED.log.log({
+      level: RED.log.INFO,
+      msg: `DUIS signing backend: ${this.signBackend}`,
+    })
 
     BoxedKeyStore.new(
       `${this.config.smkiTls ? 'https' : 'http'}://${this.config.host}:${this.config.smkiPort || 8083}`,
@@ -139,8 +164,14 @@ export = function (RED: NodeAPI) {
     ): Promise<SimplifiedDuisOutputResponse> => {
       await status(`${endpoint}: signing duis`)
 
+      const signHeaders = await resolveHeaders<string>(this.signHeaders)
       const preSignedXml = constructDuis('simplified', req)
-      const signedXml = await signDuis({ xml: preSignedXml, preserveCounter })
+      const signedXml = await signDuis({
+        xml: preSignedXml,
+        preserveCounter,
+        backend: this.signBackend,
+        headers: signHeaders,
+      })
       this.logger(signedXml)
 
       await status(`${endpoint}: requesting`)
@@ -169,7 +200,11 @@ export = function (RED: NodeAPI) {
       }
       await status(`${endpoint}: validating`)
       this.logger(response.body)
-      const validatedDuis = await validateDuis({ xml: response.body })
+      const validatedDuis = await validateDuis({
+        xml: response.body,
+        backend: this.signBackend,
+        headers: signHeaders,
+      })
 
       const res = parseDuis('simplified', validatedDuis)
       if (!isSimplifiedDuisOutputResponse(res)) {
@@ -257,6 +292,7 @@ export = function (RED: NodeAPI) {
       return res
     }
 
+    /* async duis response handling */
     RED.httpNode.post(
       this.config.responseEndpoint,
       bodyParser.text({ inflate: true, type: 'application/xml' }),
@@ -266,7 +302,14 @@ export = function (RED: NodeAPI) {
           return
         }
         this.logger(req.body)
-        validateDuis({ xml: req.body })
+        resolveHeaders<string>(this.signHeaders)
+          .then((signHeaders) =>
+            validateDuis({
+              xml: req.body,
+              backend: this.signBackend,
+              headers: signHeaders,
+            }),
+          )
           .then((validated) => parseDuis('simplified', validated))
           .then((duis) => {
             if (isSimplifiedDuisOutputResponse(duis)) {

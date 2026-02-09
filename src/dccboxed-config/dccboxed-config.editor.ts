@@ -1,7 +1,7 @@
 /*
  * Created on Tue Aug 16 2022
  *
- * Copyright (c) 2025 Smart DCC Limited
+ * Copyright (c) 2026 Smart DCC Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -149,6 +149,22 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
     loggerType: { value: 'stdout', required: true },
     duisHeaders: { value: {}, required: false },
     smkiHeaders: { value: {}, required: false },
+    signHeaders: { value: {}, required: false },
+    signURL: {
+      value: 'daemon',
+      required: true,
+      validate(val) {
+        const t = $('#node-config-input-signType').val() ?? this.signType
+        if (t === 'custom') {
+          return URL.parse(val) !== null
+        } else if (t === 'builtin') {
+          return val === 'daemon' || val === 'single shot'
+        } else {
+          return val === undefined
+        }
+      },
+    },
+    signType: { value: 'builtin', required: true },
   },
   label: function () {
     if (typeof this.name === 'string' && this.name !== '') {
@@ -193,6 +209,7 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
       [
         ['duis', this.duisHeaders],
         ['smki', this.smkiHeaders],
+        ['sign', this.signHeaders],
       ] as Array<[string, Headers]>
     ).forEach(([e, h]) => {
       $(`#node-input-${e}header-container`).editableList({
@@ -260,14 +277,39 @@ RED.nodes.registerType<Properties & EditorNodeProperties>('dccboxed-config', {
       .parent()
       .attr('width', 'auto')
       .css('max-height', '15em')
+    if ((!this.signType || this.signType === 'builtin') && !this.signURL) {
+      /* default value to preserve behaviour on upgrade */
+      $('#node-config-input-signURL').val('single shot')
+    }
+    $('#node-config-input-signURL').typedInput({
+      default: 'builtin',
+      types: [
+        {
+          value: 'builtin',
+          hasValue: false,
+          label: 'Builtin',
+          icon: 'fa fa-server',
+          options: ['daemon', 'single shot'],
+        },
+        {
+          value: 'custom',
+          hasValue: true,
+          label: 'External HTTP Service',
+          icon: 'fa fa-external-link',
+        },
+      ],
+      typeField: '#node-config-input-signType',
+    })
   },
   oneditsave() {
     this.duisHeaders = {}
     this.smkiHeaders = {}
+    this.signHeaders = {}
     ;(
       [
         ['duis', this.duisHeaders],
         ['smki', this.smkiHeaders],
+        ['sign', this.signHeaders],
       ] as Array<[string, Headers]>
     ).forEach(([e, h]) => {
       $(`#node-input-${e}header-container`)
