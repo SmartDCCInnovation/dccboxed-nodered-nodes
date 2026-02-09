@@ -1,7 +1,7 @@
 <!--
  Created on Tue Aug 16 2022
 
- Copyright (c) 2025 Smart DCC Limited
+ Copyright (c) 2026 Smart DCC Limited
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -107,6 +107,24 @@
   <div class="form-row form-tips">
     If a local keystore file is not provided, an ephemeral temporary file will
     be used.
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-signer"
+      ><i class="fa fa-floppy-o"></i> DUIS Signer</label
+    >
+    <input id="node-config-input-signURL" type="text" />
+    <input id="node-config-input-signType" type="hidden" />
+  </div>
+  <div class="form-row">
+    <label
+      class="dccboxed-config-hanging-indent"
+      for="node-input-signheader-container"
+      ><i class="fa fa-list"></i> <span> Extra DUIS Sign Headers</span></label
+    >
+    <div class="dccboxed-config-inline-editlist" style="width: 70%;">
+      <ol id="node-input-signheader-container" class="header-container"></ol>
+    </div>
   </div>
 
   <div class="form-row">

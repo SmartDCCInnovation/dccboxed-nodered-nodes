@@ -371,7 +371,7 @@ Any contributions will be expected to be licensable under GPLv3.
 
 ## Other Info
 
-Copyright 2025, Smart DCC Limited, All rights reserved. Project is licensed
+Copyright 2026, Smart DCC Limited, All rights reserved. Project is licensed
 under GPLv3.
 
 [duis]: https://smartenergycodecompany.co.uk/the-smart-energy-code-2/ "Smart Energy Code"

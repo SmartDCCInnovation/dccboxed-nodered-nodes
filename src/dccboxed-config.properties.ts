@@ -1,7 +1,7 @@
 /*
  * Created on Tue Aug 16 2022
  *
- * Copyright (c) 2022 Smart DCC Limited
+ * Copyright (c) 2026 Smart DCC Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,9 @@ export interface Properties {
   logger?: string
   duisHeaders: Headers
   smkiHeaders: Headers
+  signHeaders: Headers
+  signType: string
+  signURL: string
 }
 
 import type {
@@ -91,6 +94,8 @@ export interface ConfigNode extends Node {
   publish: (nodeId: string, body: WSMessageBody) => void
   duisHeaders: KeyStoreHeaders
   smkiHeaders: KeyStoreHeaders
+  signHeaders: KeyStoreHeaders
+  signBackend: boolean | URL
 }
 
 export interface WSMessageNotification {
